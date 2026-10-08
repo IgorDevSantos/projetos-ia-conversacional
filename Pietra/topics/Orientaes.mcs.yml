@@ -1,0 +1,42 @@
+mcs.metadata:
+  componentName: Orientações
+kind: AdaptiveDialog
+beginDialog:
+  kind: OnRecognizedIntent
+  id: main
+  intent:
+    triggerQueries:
+      - O que é uma ocorrência de entrega?
+      - Como funciona o processo?
+      - Quais tipos de ocorrência existem?
+      - Qual a diferença entre avaria, falta e impedimento?
+      - Quanto tempo demora para resolver?
+      - Qual o prazo de atendimento?
+      - Como é definida a prioridade?
+      - O que você pode fazer?
+      - Preciso falar com uma pessoa
+      - Como abro uma ocorrência?
+      - Como consulto minha ocorrência?
+      - Preciso de ajuda
+      - Estou com algumas dúvidas
+      - Preciso de uma orientação
+      - Orientação
+
+  actions:
+    - kind: SearchAndSummarizeContent
+      id: oJ7WmH
+      userInput: =System.Activity.Text
+      fileSearchDataSource:
+        searchFilesMode:
+          kind: SearchSpecificFiles
+          files:
+            - cr113_Pietra.file.Manual_ConhecimentoProjeto_Pietra_v2.docx_x9E
+            - cr113_Pietra.file.base-conhecimento-Pietra_v3.md_HlM
+
+      knowledgeSources:
+        kind: SearchSpecificKnowledgeSources
+
+      applyModelKnowledgeSetting: false
+
+inputType: {}
+outputType: {}

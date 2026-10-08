@@ -1,0 +1,229 @@
+﻿{
+  "properties": {
+    "connectionReferences": {
+      "shared_sharepointonline": {
+        "api": {
+          "name": "shared_sharepointonline"
+        },
+        "connection": {
+          "connectionReferenceLogicalName": "new_sharedsharepointonline_0584b"
+        },
+        "runtimeSource": "embedded"
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "metadata": {
+        "defaultToEmbeddedConnections": true
+      },
+      "parameters": {
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        },
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        }
+      },
+      "triggers": {
+        "manual": {
+          "type": "Request",
+          "kind": "Skills",
+          "inputs": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "description": "Insira sua entrada",
+                  "title": "PedidoCodigo",
+                  "type": "string",
+                  "x-ms-content-hint": "TEXT",
+                  "x-ms-dynamically-added": true
+                },
+                "text_1": {
+                  "description": "Insira sua entrada",
+                  "title": "Tipo",
+                  "type": "string",
+                  "x-ms-content-hint": "TEXT",
+                  "x-ms-dynamically-added": true
+                },
+                "text_2": {
+                  "description": "Insira sua entrada",
+                  "title": "QuantidadeAfetada",
+                  "type": "string",
+                  "x-ms-content-hint": "TEXT",
+                  "x-ms-dynamically-added": true
+                },
+                "text_3": {
+                  "description": "Insira sua entrada",
+                  "title": "EntregaImpedida",
+                  "type": "string",
+                  "x-ms-content-hint": "TEXT",
+                  "x-ms-dynamically-added": true
+                },
+                "text_4": {
+                  "description": "Insira sua entrada",
+                  "title": "DescricaoResumo",
+                  "type": "string",
+                  "x-ms-content-hint": "TEXT",
+                  "x-ms-dynamically-added": true
+                }
+              },
+              "required": [
+                "text",
+                "text_1",
+                "text_2",
+                "text_3",
+                "text_4"
+              ]
+            }
+          },
+          "metadata": {
+            "operationMetadataId": "b8f61c18-7224-4f8a-9c5f-72fbce5df764"
+          }
+        }
+      },
+      "actions": {
+        "Obter_itens": {
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "dataset": "https://escolatrabalhador4.sharepoint.com/sites/SoulCodeAcademy",
+              "table": "09af5d57-8ec8-468e-b4ee-9e00dcb39c11",
+              "$filter": "@concat(\u0027Title eq \u0027\u0027\u0027, trim(triggerBody()?[\u0027text\u0027]), \u0027\u0027\u0027\u0027)"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "operationId": "GetItems",
+              "connectionName": "shared_sharepointonline"
+            }
+          },
+          "runAfter": {}
+        },
+        "Percentual": {
+          "type": "Compose",
+          "inputs": "@div(mul(int(triggerBody()?[\u0027text_2\u0027]), 100), int(first(body(\u0027Obter_itens\u0027)?[\u0027value\u0027])?[\u0027QuantidadePrevista\u0027]))",
+          "runAfter": {
+            "Obter_itens": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Obter_itens_1": {
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "dataset": "https://escolatrabalhador4.sharepoint.com/sites/SoulCodeAcademy",
+              "table": "494fe559-f186-4622-81fe-189fd3e4f893",
+              "$filter": "@concat(\u0027ChaveOperacao eq \u0027\u0027\u0027, trim(triggerBody()?[\u0027text\u0027]), \u0027-\u0027, triggerBody()?[\u0027text_1\u0027], \u0027-\u0027, triggerBody()?[\u0027text_2\u0027], \u0027\u0027\u0027\u0027)"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "operationId": "GetItems",
+              "connectionName": "shared_sharepointonline"
+            }
+          },
+          "runAfter": {
+            "Percentual": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Condi\u00E7\u00E3o": {
+          "type": "If",
+          "expression": {
+            "and": [
+              {
+                "equals": [
+                  "@empty(body(\u0027Obter_itens_1\u0027)?[\u0027value\u0027])",
+                  true
+                ]
+              }
+            ]
+          },
+          "actions": {
+            "Criar_item": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "parameters": {
+                  "dataset": "https://escolatrabalhador4.sharepoint.com/sites/SoulCodeAcademy",
+                  "table": "494fe559-f186-4622-81fe-189fd3e4f893",
+                  "item/Title": "@concat(\u0027OC\u0027, formatDateTime(utcNow(), \u0027yyyyMMddHHmmss\u0027))",
+                  "item/QuantidadeAfetada": "@int(triggerBody()?[\u0027text_2\u0027])",
+                  "item/EntregaImpedida": "@equals(toLower(triggerBody()?[\u0027text_3\u0027]), \u0027true\u0027)",
+                  "item/Descricao": "@triggerBody()?[\u0027text_4\u0027]",
+                  "item/ChaveOperacao": "@concat(trim(triggerBody()?[\u0027text\u0027]), \u0027-\u0027, triggerBody()?[\u0027text_1\u0027], \u0027-\u0027, triggerBody()?[\u0027text_2\u0027])",
+                  "item/UltimaAtualizacao": "@utcNow()",
+                  "item/Pedido/Id": "@first(body(\u0027Obter_itens\u0027)?[\u0027value\u0027])?[\u0027ID\u0027]",
+                  "item/TipoOcorrencia/Value": "@triggerBody()?[\u0027text_1\u0027]",
+                  "item/Prioridade/Value": "@if(or(equals(toLower(triggerBody()?[\u0027text_3\u0027]),\u0027true\u0027), greaterOrEquals(outputs(\u0027Percentual\u0027), 10)), \u0027Alta\u0027, \u0027Normal\u0027)",
+                  "item/Situacao/Value": "Aberta",
+                  "item/Responsavel": "@if(or(equals(toLower(triggerBody()?[\u0027text_3\u0027]),\u0027true\u0027), greaterOrEquals(outputs(\u0027Percentual\u0027), 10)), \u0027supervisor\u0027, \u0027operador\u0027)",
+                  "item/ComunicacaoPendente": true
+                },
+                "host": {
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                  "operationId": "PostItem",
+                  "connectionName": "shared_sharepointonline"
+                }
+              }
+            }
+          },
+          "else": {
+            "actions": {}
+          },
+          "runAfter": {
+            "Obter_itens_1": [
+              "Succeeded"
+            ]
+          }
+        },
+        "Retornar_os_valores_ao_Power_Virtual_Agents": {
+          "type": "Response",
+          "kind": "VirtualAgent",
+          "inputs": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "ocorrenciacodigo": {
+                  "title": "OcorrenciaCodigo",
+                  "type": "string",
+                  "x-ms-content-hint": "TEXT",
+                  "x-ms-dynamically-added": true
+                },
+                "prioridade": {
+                  "title": "Prioridade",
+                  "type": "string",
+                  "x-ms-content-hint": "TEXT",
+                  "x-ms-dynamically-added": true
+                },
+                "situacao": {
+                  "title": "Situacao",
+                  "type": "string",
+                  "x-ms-content-hint": "TEXT",
+                  "x-ms-dynamically-added": true
+                }
+              },
+              "additionalProperties": {}
+            },
+            "statusCode": 200,
+            "body": {
+              "ocorrenciacodigo": "@{coalesce(first(body(\u0027Obter_itens_1\u0027)?[\u0027value\u0027])?[\u0027Title\u0027], body(\u0027Criar_item\u0027)?[\u0027Title\u0027])}",
+              "prioridade": "@{coalesce(first(body(\u0027Obter_itens_1\u0027)?[\u0027value\u0027])?[\u0027Prioridade\u0027]?[\u0027Value\u0027], body(\u0027Criar_item\u0027)?[\u0027Prioridade\u0027]?[\u0027Value\u0027])}",
+              "situacao": "@{coalesce(first(body(\u0027Obter_itens_1\u0027)?[\u0027value\u0027])?[\u0027Situacao\u0027]?[\u0027Value\u0027], body(\u0027Criar_item\u0027)?[\u0027Situacao\u0027]?[\u0027Value\u0027])}"
+            }
+          },
+          "runAfter": {
+            "Condi\u00E7\u00E3o": [
+              "Succeeded"
+            ]
+          }
+        }
+      },
+      "outputs": {}
+    }
+  },
+  "schemaVersion": "1.0.0.0"
+}

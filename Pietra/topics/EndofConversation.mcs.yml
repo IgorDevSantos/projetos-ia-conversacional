@@ -1,0 +1,81 @@
+mcs.metadata:
+  componentName: Fim da conversa
+  description: |-
+    Esse tópico do sistema é disparado apenas por uma ação de redirecionamento,
+    e guia o usuário para classificar a conversa com o agente.
+kind: AdaptiveDialog
+startBehavior: CancelOtherTopics
+beginDialog:
+  kind: OnSystemRedirect
+  id: main
+  actions:
+    - kind: Question
+      id: 41d42054-d4cb-4e90-b922-2b16b37fe379
+      conversationOutcome: ResolvedImplied
+      alwaysPrompt: true
+      variable: init:Topic.SurveyResponse
+      prompt: Consegui esclarecer o que você precisava sobre o pedido, ocorrência ou dúvidas?
+      entity: BooleanPrebuiltEntity
+
+    - kind: ConditionGroup
+      id: condition-0
+      conditions:
+        - id: condition-0-item-0
+          condition: =Topic.SurveyResponse = true
+          actions:
+            - kind: CSATQuestion
+              id: csat_1
+              conversationOutcome: ResolvedConfirmed
+              displayName: Antes de encerrar, como você avalia esse atendimento?
+
+            - kind: SendActivity
+              id: sendMessage_8r29O0
+              activity: Obrigada pela avaliação! Isso me ajuda a melhorar.
+
+            - kind: Question
+              id: question_1
+              alwaysPrompt: true
+              variable: init:Topic.Continue
+              prompt: Posso ajudar com algo mais?
+              entity: BooleanPrebuiltEntity
+
+            - kind: ConditionGroup
+              id: condition-1
+              conditions:
+                - id: condition-1-item-0
+                  condition: =Topic.Continue = true
+                  actions:
+                    - kind: SendActivity
+                      id: sendMessage_4eOE6h
+                      activity: Claro! Pode me contar o que você precisa — consultar um pedido, abrir uma ocorrência ou acompanhar uma já registrada.
+
+              elseActions:
+                - kind: SendActivity
+                  id: yHBz55
+                  activity: Até mais! Qualquer coisa, é só chamar a Pietra de novo.
+
+                - kind: EndConversation
+                  id: jh1GMT
+
+      elseActions:
+        - kind: Question
+          id: PM68ot
+          alwaysPrompt: true
+          variable: init:Topic.TryAgain
+          prompt: Sinto muito por não ter conseguido te ajudar direito. Quer tentar reformular sua pergunta?
+          entity: BooleanPrebuiltEntity
+
+        - kind: ConditionGroup
+          id: KNxYBf
+          conditions:
+            - id: DPveFP
+              condition: =Topic.TryAgain = false
+              actions:
+                - kind: BeginDialog
+                  id: cngqi4
+                  dialog: cr113_Pietra.topic.Escalate
+
+          elseActions:
+            - kind: SendActivity
+              id: GrVHEW
+              activity: Sem problemas, pode reformular sua pergunta.

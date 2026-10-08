@@ -1,0 +1,141 @@
+﻿{
+  "properties": {
+    "connectionReferences": {
+      "shared_sharepointonline": {
+        "api": {
+          "name": "shared_sharepointonline"
+        },
+        "connection": {
+          "connectionReferenceLogicalName": "new_sharedsharepointonline_0584b"
+        },
+        "runtimeSource": "embedded"
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        },
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        }
+      },
+      "triggers": {
+        "manual": {
+          "type": "Request",
+          "kind": "Skills",
+          "inputs": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "description": "Insira sua entrada",
+                  "title": "PedidoCodigo",
+                  "type": "string",
+                  "x-ms-content-hint": "TEXT",
+                  "x-ms-dynamically-added": true
+                }
+              },
+              "required": [
+                "text"
+              ]
+            }
+          },
+          "metadata": {
+            "operationMetadataId": "b8f61c18-7224-4f8a-9c5f-72fbce5df764"
+          }
+        }
+      },
+      "actions": {
+        "Obter_itens": {
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "dataset": "https://escolatrabalhador4.sharepoint.com/sites/SoulCodeAcademy",
+              "table": "09af5d57-8ec8-468e-b4ee-9e00dcb39c11",
+              "$filter": "Title eq \u0027@{triggerBody()?[\u0027text\u0027]}\u0027"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "operationId": "GetItems",
+              "connectionName": "shared_sharepointonline"
+            }
+          },
+          "runAfter": {}
+        },
+        "Retornar_os_valores_ao_Power_Virtual_Agents": {
+          "type": "Response",
+          "kind": "VirtualAgent",
+          "inputs": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "_encontrado": {
+                  "title": " Encontrado",
+                  "type": "string",
+                  "x-ms-content-hint": "TEXT",
+                  "x-ms-dynamically-added": true
+                },
+                "destino": {
+                  "title": "Destino",
+                  "type": "string",
+                  "x-ms-content-hint": "TEXT",
+                  "x-ms-dynamically-added": true
+                },
+                "dataprevista": {
+                  "title": "DataPrevista",
+                  "type": "string",
+                  "x-ms-content-hint": "TEXT",
+                  "x-ms-dynamically-added": true
+                },
+                "quantidadeprevista": {
+                  "title": "QuantidadePrevista",
+                  "type": "string",
+                  "x-ms-content-hint": "TEXT",
+                  "x-ms-dynamically-added": true
+                },
+                "situacao": {
+                  "title": "Situacao",
+                  "type": "string",
+                  "x-ms-content-hint": "TEXT",
+                  "x-ms-dynamically-added": true
+                },
+                "solicitanteid": {
+                  "title": "SolicitanteId",
+                  "type": "string",
+                  "x-ms-content-hint": "TEXT",
+                  "x-ms-dynamically-added": true
+                }
+              },
+              "additionalProperties": {}
+            },
+            "statusCode": 200,
+            "body": {
+              "_encontrado": "@{if(empty(body(\u0027Obter_itens\u0027)?[\u0027value\u0027]), \u0027nao\u0027, \u0027sim\u0027)}",
+              "destino": "@{ first(body(\u0027Obter_itens\u0027)?[\u0027value\u0027])?[\u0027Destino\u0027]}",
+              "dataprevista": "@{if(empty(first(body(\u0027Obter_itens\u0027)?[\u0027value\u0027])?[\u0027DataPrevista\u0027]), \u0027\u0027, formatDateTime(convertTimeZone(first(body(\u0027Obter_itens\u0027)?[\u0027value\u0027])?[\u0027DataPrevista\u0027], \u0027UTC\u0027, \u0027SA Eastern Standard Time\u0027), \u0027dd/MM/yyyy HH:mm\u0027))}",
+              "quantidadeprevista": "@{first(body(\u0027Obter_itens\u0027)?[\u0027value\u0027])?[\u0027QuantidadePrevista\u0027]}",
+              "situacao": "@{   first(body(\u0027Obter_itens\u0027)?[\u0027value\u0027])?[\u0027Situacao\u0027]?[\u0027Value\u0027]}",
+              "solicitanteid": "@{first(body(\u0027Obter_itens\u0027)?[\u0027value\u0027])?[\u0027SolicitanteId\u0027]}"
+            }
+          },
+          "runAfter": {
+            "Obter_itens": [
+              "SUCCEEDED"
+            ]
+          }
+        }
+      },
+      "outputs": {},
+      "description": "When an agent calls the flow and send back a response.",
+      "metadata": {
+        "defaultToEmbeddedConnections": true
+      }
+    }
+  },
+  "schemaVersion": "1.0.0.0"
+}

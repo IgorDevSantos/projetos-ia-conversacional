@@ -1,0 +1,436 @@
+﻿{
+  "properties": {
+    "connectionReferences": {
+      "shared_sharepointonline": {
+        "api": {
+          "name": "shared_sharepointonline"
+        },
+        "connection": {
+          "connectionReferenceLogicalName": "new_sharedsharepointonline_0584b"
+        },
+        "runtimeSource": "embedded"
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        },
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        }
+      },
+      "triggers": {
+        "manual": {
+          "type": "Request",
+          "kind": "Skills",
+          "inputs": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "description": "Insira sua entrada",
+                  "title": "C\u00F3digoOcorr\u00EAncia",
+                  "type": "string",
+                  "x-ms-content-hint": "TEXT",
+                  "x-ms-dynamically-added": true
+                },
+                "text_1": {
+                  "description": "Insira sua entrada",
+                  "title": "IdentificadorSolicitante",
+                  "type": "string",
+                  "x-ms-content-hint": "TEXT",
+                  "x-ms-dynamically-added": true
+                }
+              },
+              "required": [
+                "text",
+                "text_1"
+              ]
+            }
+          },
+          "metadata": {
+            "operationMetadataId": "b8f61c18-7224-4f8a-9c5f-72fbce5df764"
+          }
+        }
+      },
+      "actions": {
+        "Inicializar_Resultado": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "vResultado",
+                "type": "string"
+              }
+            ]
+          },
+          "runAfter": {}
+        },
+        "Inicializar_Situacao": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "vSituacao",
+                "type": "string"
+              }
+            ]
+          },
+          "runAfter": {
+            "Inicializar_Resultado": [
+              "SUCCEEDED"
+            ]
+          }
+        },
+        "Inicializar_Tipo": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "vTipo",
+                "type": "string"
+              }
+            ]
+          },
+          "runAfter": {
+            "Inicializar_Situacao": [
+              "SUCCEEDED"
+            ]
+          }
+        },
+        "Inicializar_Prioridade": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "vPrioridade",
+                "type": "string"
+              }
+            ]
+          },
+          "runAfter": {
+            "Inicializar_Tipo": [
+              "SUCCEEDED"
+            ]
+          }
+        },
+        "Inicializar_Quantidade": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "vQuantidade",
+                "type": "string"
+              }
+            ]
+          },
+          "runAfter": {
+            "Inicializar_Prioridade": [
+              "SUCCEEDED"
+            ]
+          }
+        },
+        "Inicializar_Decisao": {
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "vDecisao",
+                "type": "string"
+              }
+            ]
+          },
+          "runAfter": {
+            "Inicializar_Quantidade": [
+              "SUCCEEDED"
+            ]
+          }
+        },
+        "Retornar_os_valores_ao_Power_Virtual_Agents_": {
+          "type": "Response",
+          "kind": "VirtualAgent",
+          "inputs": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "resultado": {
+                  "title": "Resultado",
+                  "type": "string",
+                  "x-ms-content-hint": "TEXT",
+                  "x-ms-dynamically-added": true
+                },
+                "situacaoocorrencia": {
+                  "title": "SituacaoOcorrencia",
+                  "type": "string",
+                  "x-ms-content-hint": "TEXT",
+                  "x-ms-dynamically-added": true
+                },
+                "tipoocorrencia": {
+                  "title": "TipoOcorrencia",
+                  "type": "string",
+                  "x-ms-content-hint": "TEXT",
+                  "x-ms-dynamically-added": true
+                },
+                "prioridade": {
+                  "title": "Prioridade",
+                  "type": "string",
+                  "x-ms-content-hint": "TEXT",
+                  "x-ms-dynamically-added": true
+                },
+                "quantidadeafetada": {
+                  "title": "QuantidadeAfetada",
+                  "type": "string",
+                  "x-ms-content-hint": "TEXT",
+                  "x-ms-dynamically-added": true
+                },
+                "decisaohumana": {
+                  "title": "DecisaoHumana",
+                  "type": "string",
+                  "x-ms-content-hint": "TEXT",
+                  "x-ms-dynamically-added": true
+                }
+              },
+              "additionalProperties": {}
+            },
+            "statusCode": 200,
+            "body": {
+              "resultado": "@{coalesce(variables(\u0027vResultado\u0027), \u0027\u0027)}",
+              "situacaoocorrencia": "@{coalesce(variables(\u0027vSituacao\u0027), \u0027\u0027)}",
+              "tipoocorrencia": "@{coalesce(variables(\u0027vTipo\u0027), \u0027\u0027)}",
+              "prioridade": "@{coalesce(variables(\u0027vPrioridade\u0027), \u0027\u0027)}",
+              "quantidadeafetada": "@{coalesce(variables(\u0027vQuantidade\u0027), \u0027\u0027)}",
+              "decisaohumana": "@{coalesce(variables(\u0027vDecisao\u0027), \u0027\u0027)}"
+            }
+          },
+          "runAfter": {
+            "Condi\u00E7\u00E3o": [
+              "SUCCEEDED"
+            ]
+          }
+        },
+        "CodigoLimpo": {
+          "type": "Compose",
+          "inputs": "@trim(triggerBody()?[\u0027text\u0027])",
+          "runAfter": {
+            "Inicializar_Decisao": [
+              "SUCCEEDED"
+            ]
+          }
+        },
+        "SolicitanteLimpo": {
+          "type": "Compose",
+          "inputs": "@trim(triggerBody()?[\u0027text_1\u0027])",
+          "runAfter": {
+            "CodigoLimpo": [
+              "SUCCEEDED"
+            ]
+          }
+        },
+        "Obter_itens": {
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "dataset": "https://escolatrabalhador4.sharepoint.com/sites/SoulCodeAcademy",
+              "table": "494fe559-f186-4622-81fe-189fd3e4f893",
+              "$filter": "@concat(\u0027Title eq \u0027\u0027\u0027, outputs(\u0027CodigoLimpo\u0027), \u0027\u0027\u0027\u0027)",
+              "$top": 1
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "operationId": "GetItems",
+              "connectionName": "shared_sharepointonline"
+            }
+          },
+          "runAfter": {
+            "SolicitanteLimpo": [
+              "SUCCEEDED"
+            ]
+          }
+        },
+        "Condi\u00E7\u00E3o": {
+          "type": "If",
+          "expression": {
+            "and": [
+              {
+                "greater": [
+                  "@length(body(\u0027Obter_itens\u0027)?[\u0027value\u0027])",
+                  0
+                ]
+              }
+            ]
+          },
+          "actions": {
+            "ObterPedido": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "parameters": {
+                  "dataset": "https://escolatrabalhador4.sharepoint.com/sites/SoulCodeAcademy",
+                  "table": "09af5d57-8ec8-468e-b4ee-9e00dcb39c11",
+                  "id": "@first(body(\u0027Obter_itens\u0027)?[\u0027value\u0027])?[\u0027Pedido\u0027]?[\u0027Id\u0027]"
+                },
+                "host": {
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                  "operationId": "GetItem",
+                  "connectionName": "shared_sharepointonline"
+                }
+              }
+            },
+            "SeAutorizado": {
+              "type": "If",
+              "expression": {
+                "and": [
+                  {
+                    "equals": [
+                      "@body(\u0027ObterPedido\u0027)?[\u0027SolicitanteId\u0027]",
+                      "@outputs(\u0027SolicitanteLimpo\u0027)"
+                    ]
+                  }
+                ]
+              },
+              "actions": {
+                "Definir_vari\u00E1vel_2": {
+                  "type": "SetVariable",
+                  "inputs": {
+                    "name": "vResultado",
+                    "value": "OK"
+                  }
+                },
+                "Definir_vari\u00E1vel_3": {
+                  "type": "SetVariable",
+                  "inputs": {
+                    "name": "vSituacao",
+                    "value": "@first(body(\u0027Obter_itens\u0027)?[\u0027value\u0027])?[\u0027Situacao\u0027]?[\u0027Value\u0027]"
+                  },
+                  "runAfter": {
+                    "Definir_vari\u00E1vel_2": [
+                      "SUCCEEDED"
+                    ]
+                  }
+                },
+                "Definir_vari\u00E1vel_4": {
+                  "type": "SetVariable",
+                  "inputs": {
+                    "name": "vTipo",
+                    "value": "@first(body(\u0027Obter_itens\u0027)?[\u0027value\u0027])?[\u0027TipoOcorrencia\u0027]?[\u0027Value\u0027]"
+                  },
+                  "runAfter": {
+                    "Definir_vari\u00E1vel_3": [
+                      "SUCCEEDED"
+                    ]
+                  }
+                },
+                "Definir_vari\u00E1vel_5": {
+                  "type": "SetVariable",
+                  "inputs": {
+                    "name": "vPrioridade",
+                    "value": "@first(body(\u0027Obter_itens\u0027)?[\u0027value\u0027])?[\u0027Prioridade\u0027]?[\u0027Value\u0027]"
+                  },
+                  "runAfter": {
+                    "Definir_vari\u00E1vel_4": [
+                      "SUCCEEDED"
+                    ]
+                  }
+                },
+                "Definir_vari\u00E1vel_6": {
+                  "type": "SetVariable",
+                  "inputs": {
+                    "name": "vQuantidade",
+                    "value": "@string(first(body(\u0027Obter_itens\u0027)?[\u0027value\u0027])?[\u0027QuantidadeAfetada\u0027])"
+                  },
+                  "runAfter": {
+                    "Definir_vari\u00E1vel_5": [
+                      "SUCCEEDED"
+                    ]
+                  }
+                },
+                "Definir_vari\u00E1vel_7": {
+                  "type": "SetVariable",
+                  "inputs": {
+                    "name": "vDecisao",
+                    "value": "@if(empty(coalesce(first(body(\u0027Obter_itens\u0027)?[\u0027value\u0027])?[\u0027DecisaoHumana\u0027], \u0027\u0027)), \u0027Ainda n\u00E3o h\u00E1 decis\u00E3o registrada para esta ocorr\u00EAncia.\u0027, concat(\u0027Decis\u00E3o registrada: \u0027, first(body(\u0027Obter_itens\u0027)?[\u0027value\u0027])?[\u0027DecisaoHumana\u0027]))"
+                  },
+                  "runAfter": {
+                    "Definir_vari\u00E1vel_6": [
+                      "SUCCEEDED"
+                    ]
+                  }
+                }
+              },
+              "else": {
+                "actions": {
+                  "Definir_vari\u00E1vel_1": {
+                    "type": "SetVariable",
+                    "inputs": {
+                      "name": "vResultado",
+                      "value": "NAO_AUTORIZADO"
+                    }
+                  },
+                  "HistoricoNegado": {
+                    "type": "OpenApiConnection",
+                    "inputs": {
+                      "parameters": {
+                        "dataset": "https://escolatrabalhador4.sharepoint.com/sites/SoulCodeAcademy",
+                        "table": "0d615734-fb0a-474d-9d2c-abf163934edd",
+                        "item/Title": "@concat(\u0027EVT\u0027, formatDateTime(utcNow(),\u0027yyyyMMddHHmmssfff\u0027))",
+                        "item/Entidade": "Ocorrencia",
+                        "item/RegistroCodigo": "@outputs(\u0027CodigoLimpo\u0027)",
+                        "item/DataHora": "@utcNow()",
+                        "item/Autor": "@outputs(\u0027SolicitanteLimpo\u0027)",
+                        "item/Correlacao": "@outputs(\u0027CodigoLimpo\u0027)",
+                        "item/Acao/Value": "Consulta negada",
+                        "item/Resultado/Value": "Falha",
+                        "item/Detalhe": "Solicitante nao vinculado ao pedido da ocorrencia"
+                      },
+                      "host": {
+                        "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+                        "operationId": "PostItem",
+                        "connectionName": "shared_sharepointonline"
+                      }
+                    },
+                    "runAfter": {
+                      "Definir_vari\u00E1vel_1": [
+                        "SUCCEEDED"
+                      ]
+                    }
+                  }
+                }
+              },
+              "runAfter": {
+                "ObterPedido": [
+                  "SUCCEEDED"
+                ]
+              }
+            }
+          },
+          "else": {
+            "actions": {
+              "Definir_vari\u00E1vel": {
+                "type": "SetVariable",
+                "inputs": {
+                  "name": "vResultado",
+                  "value": "NAO_ENCONTRADO"
+                }
+              }
+            }
+          },
+          "runAfter": {
+            "Obter_itens": [
+              "SUCCEEDED"
+            ]
+          }
+        }
+      },
+      "outputs": {},
+      "description": "When an agent calls the flow and send back a response.",
+      "metadata": {
+        "defaultToEmbeddedConnections": true
+      }
+    }
+  },
+  "schemaVersion": "1.0.0.0"
+}

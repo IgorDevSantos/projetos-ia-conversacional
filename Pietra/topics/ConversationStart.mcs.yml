@@ -1,0 +1,56 @@
+mcs.metadata:
+  componentName: Início da conversa
+  description: Esse tópico do sistema é disparado quando o agente recebe uma Atividade que indica o início de uma nova conversa. Se você não quiser que o agente inicie a conversa, desabilite esse tópico.
+kind: AdaptiveDialog
+beginDialog:
+  kind: OnConversationStart
+  id: main
+  actions:
+    - kind: SendActivity
+      id: sendActivity_zDdrw7
+      activity: Olá! Sou a {System.Bot.Name}, assistente da empresa Malta Distribuidora de Bebidas. Posso consultar um pedido, registrar uma ocorrência de entrega ou verificar o andamento de um protocolo.
+
+    - kind: Question
+      id: question_bAuIhG
+      interruptionPolicy:
+        allowInterruption: true
+
+      variable: init:Topic.OpçoesInicio
+      prompt: Como posso ajudar?
+      entity:
+        kind: EmbeddedEntity
+        definition:
+          kind: ClosedListEntity
+          items:
+            - id: Abertura de Ocorrência
+              displayName: Abertura de Ocorrência
+
+            - id: "Consulta Ocorrência "
+              displayName: "Consulta Ocorrência "
+
+            - id: Consulta de Pedido
+              displayName: Consulta de Pedido
+
+    - kind: ConditionGroup
+      id: conditionGroup_AtkW6h
+      conditions:
+        - id: conditionItem_wzW4e7
+          condition: =Topic.OpçoesInicio = 'cr113_Pietra.topic.ConversationStart.main.question_bAuIhG'.'Abertura de Ocorrência'
+          actions:
+            - kind: BeginDialog
+              id: z7kOGd
+              dialog: cr113_Pietra.topic.AberturadeOcorrncia_he0
+
+        - id: conditionItem_qMMTZM
+          condition: =Topic.OpçoesInicio = 'cr113_Pietra.topic.ConversationStart.main.question_bAuIhG'.'Consulta Ocorrência '
+          actions:
+            - kind: BeginDialog
+              id: cK6uDt
+              dialog: cr113_Pietra.topic.Consultadeocorrncia
+
+        - id: conditionItem_8FJZ1P
+          condition: =Topic.OpçoesInicio = 'cr113_Pietra.topic.ConversationStart.main.question_bAuIhG'.'Consulta de Pedido'
+          actions:
+            - kind: BeginDialog
+              id: EG0nGw
+              dialog: cr113_Pietra.topic.Consultadepedido

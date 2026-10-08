@@ -1,0 +1,7 @@
+mcs.metadata:
+  componentName: ConhecimentoProjeto
+  description: Esta fonte de conhecimento fornece informações encontradas em ConhecimentoProjeto SharePoint.
+kind: KnowledgeSourceConfiguration
+source:
+  kind: SharePointSearchSource
+  site: https://escolatrabalhador4.sharepoint.com/sites/SoulCodeAcademy/Documentos%20Compartilhados/ConhecimentoProjeto

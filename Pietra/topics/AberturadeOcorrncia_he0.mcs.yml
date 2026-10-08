@@ -1,0 +1,246 @@
+mcs.metadata:
+  componentName: Abertura de Ocorrência
+kind: AdaptiveDialog
+beginDialog:
+  kind: OnRecognizedIntent
+  id: main
+  intent:
+    triggerQueries:
+      - Quero abrir uma ocorrência
+      - Preciso registrar um problema na entrega
+      - Tive um problema com um pedido
+      - Abrir ocorrência
+      - Registrar ocorrência de entrega
+      - Preciso relatar um problema
+      - Deu problema num pedido
+      - Preciso relatar uma ocorrência com um pedido
+
+  actions:
+    - kind: Question
+      id: question_MMjV8N
+      interruptionPolicy:
+        allowInterruption: true
+
+      variable: init:Topic.SolicitanteInformado
+      prompt: Qual é o seu identificador de solicitante?
+      entity: StringPrebuiltEntity
+
+    - kind: Question
+      id: question_YqsGh0
+      interruptionPolicy:
+        allowInterruption: true
+
+      variable: init:Topic.PedidoCodigo
+      prompt: Qual o código do pedido relacionado a essa ocorrência?
+      entity: StringPrebuiltEntity
+
+    - kind: InvokeFlowAction
+      id: invokeFlowAction_1cOr3S
+      input:
+        binding:
+          text: =Topic.PedidoCodigo
+
+      output:
+        binding:
+          _encontrado: Topic.Encontrado
+          dataprevista: Topic.DataPrevista
+          destino: Topic.Destino
+          quantidadeprevista: Topic.QuantidadePrevista
+          situacao: Topic.Situacao
+          solicitanteid: Topic.SolicitanteId
+
+      flowId: f3942875-5cb7-f111-aaae-002248e04b25
+
+    - kind: ConditionGroup
+      id: conditionGroup_LK9oL4
+      conditions:
+        - id: conditionItem_r3nFnM
+          condition: =Topic.Encontrado = "sim"
+          actions:
+            - kind: ConditionGroup
+              id: conditionGroup_v8Hp4W
+              conditions:
+                - id: conditionItem_WqTm3u
+                  condition: =Topic.SolicitanteInformado = Topic.SolicitanteId
+
+              elseActions:
+                - kind: SendActivity
+                  id: sendActivity_YKcb8L
+                  activity: Não é possível exibir os dados deste pedido.
+
+                - kind: EndDialog
+                  id: mCcqyF
+
+            - kind: Question
+              id: question_2Yvkrf
+              interruptionPolicy:
+                allowInterruption: true
+
+              variable: init:Topic.Tipo
+              prompt: Qual o tipo de ocorrência?
+              entity:
+                kind: EmbeddedEntity
+                definition:
+                  kind: ClosedListEntity
+                  items:
+                    - id: Avaria
+                      displayName: Avaria
+
+                    - id: Falta
+                      displayName: Falta
+
+                    - id: Impedimento
+                      displayName: Impedimento
+
+            - kind: ConditionGroup
+              id: conditionGroup_WL3wLB
+              conditions:
+                - id: conditionItem_elo5c5
+                  condition: =Topic.Tipo = 'cr113_Pietra.topic.AberturadeOcorrncia_he0.main.question_2Yvkrf'.Impedimento
+                  actions:
+                    - kind: SetVariable
+                      id: setVariable_g9n5kA
+                      variable: Topic.EntregaImpedida
+                      value: true
+
+              elseActions:
+                - kind: Question
+                  id: question_VfB2az
+                  interruptionPolicy:
+                    allowInterruption: true
+
+                  variable: init:Topic.EntregaImpedida
+                  prompt: A entrega ficou totalmente impedida?
+                  entity: BooleanPrebuiltEntity
+
+            - kind: Question
+              id: question_vrBuiJ
+              interruptionPolicy:
+                allowInterruption: true
+
+              variable: init:Topic.QuantidadeAfetada
+              prompt: Quantas unidades foram afetadas?
+              entity: NumberPrebuiltEntity
+
+            - kind: ConditionGroup
+              id: conditionGroup_XtgvvV
+              conditions:
+                - id: conditionItem_hwJ931
+                  condition: =Topic.QuantidadeAfetada > Value(Topic.QuantidadePrevista) || Topic.QuantidadeAfetada < 1
+                  actions:
+                    - kind: SendActivity
+                      id: sendActivity_vHNtjr
+                      activity: A quantidade informada não é válida. Ela precisa ser maior que zero e não pode ultrapassar a quantidade do pedido, que é de {Topic.QuantidadePrevista} unidades.
+
+                    - kind: EndDialog
+                      id: lCQiSk
+
+              elseActions:
+                - kind: Question
+                  id: question_pwNe50
+                  interruptionPolicy:
+                    allowInterruption: true
+
+                  variable: init:Topic.Descricao
+                  prompt: Por favor, descreva o que aconteceu na entrega.
+                  entity: StringPrebuiltEntity
+
+                - kind: InvokeAIBuilderModelAction
+                  id: invokeAIBuilderModelAction_SZqQsY
+                  input:
+                    binding:
+                      Relato: =Topic.Descricao
+
+                  output:
+                    binding:
+                      predictionOutput: Topic.ResumoRecord
+
+                  aIModelId: 2f2eb9c4-bda5-407a-8d70-00ab5f253ca4
+
+                - kind: SetVariable
+                  id: setVariable_xyO0GX
+                  variable: Topic.DescricaoResumo
+                  value: =Topic.ResumoRecord.text
+
+                - kind: SendActivity
+                  id: sendActivity_aHIl0c
+                  activity: |-
+                    Confira os dados antes de registrar: 
+
+                    **Pedido:** {Topic.PedidoCodigo}
+
+                    **Tipo:** {Topic.Tipo}
+
+                    **Quantidade afetada:** {Topic.QuantidadeAfetada}
+
+                    **Entrega impedida:** {Topic.EntregaImpedida}
+
+                    **Resumo**: {Topic.DescricaoResumo}
+
+                - kind: Question
+                  id: question_0u8j3W
+                  interruptionPolicy:
+                    allowInterruption: true
+
+                  variable: init:Topic.Confirmar
+                  prompt: Confirma a abertura dessa ocorrência?
+                  entity: BooleanPrebuiltEntity
+
+                - kind: ConditionGroup
+                  id: conditionGroup_DpOcnj
+                  conditions:
+                    - id: conditionItem_BVLzKB
+                      condition: =Topic.Confirmar = true
+                      actions:
+                        - kind: InvokeFlowAction
+                          id: invokeFlowAction_dT84Hj
+                          input:
+                            binding:
+                              text: =Topic.PedidoCodigo
+                              text_1: =Text(Topic.Tipo)
+                              text_2: =Text(Topic.QuantidadeAfetada)
+                              text_3: =Text(Topic.EntregaImpedida)
+                              text_4: =Topic.DescricaoResumo
+
+                          output:
+                            binding:
+                              ocorrenciacodigo: Topic.OcorrenciaCodigo
+                              prioridade: Topic.Prioridade
+                              situacao: Topic.Situacao
+
+                          flowId: c1b5f85e-71b8-f111-aaae-002248e04b25
+
+                        - kind: SendActivity
+                          id: sendActivity_9mBw4Y
+                          activity: |-
+                            A **ocorrência** {Topic.OcorrenciaCodigo}  foi registrada com **prioridade** {Topic.Prioridade} e  **situação**: {Topic.Situacao}.
+
+                            _Você será avisado(a) quando houver atualização._
+
+                        - kind: EndDialog
+                          id: tsNCej
+
+                  elseActions:
+                    - kind: SendActivity
+                      id: sendActivity_6vVlpT
+                      activity: Ocorrência não registrada! Se precisar, pode começar de novo a qualquer momento.
+
+                    - kind: EndDialog
+                      id: SkEMaj
+
+      elseActions:
+        - kind: SendActivity
+          id: sendActivity_3OpDuN
+          activity: Não encontrei esse pedido, confira o código.
+
+        - kind: GotoAction
+          id: mpissi
+          actionId: question_YqsGh0
+
+inputType:
+  properties:
+    EntregaImpedida:
+      displayName: EntregaImpedida
+      type: Boolean
+
+outputType: {}

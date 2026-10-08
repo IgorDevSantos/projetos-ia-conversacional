@@ -1,0 +1,107 @@
+mcs.metadata:
+  componentName: Consulta de Ocorrência
+kind: AdaptiveDialog
+modelDescription: |-
+  permite ao solicitante checar a situação de uma ocorrência já aberta — situação atual, prioridade e, se concluída, a decisão registrada (responsável, resultado, justificativa, data). A Pietra informa exatamente o que está gravado no SharePoint, sem estimar prazo além do já definido pela regra, e nunca retorna o registro de outra pessoa.
+
+  Frases gatilho:
+
+  Como está minha ocorrência?
+  Qual o status do protocolo OC00X?
+  Já decidiram meu caso?
+  Minha ocorrência já foi resolvida?
+  Quero acompanhar uma ocorrência
+  Perdi o protocolo, como consulto?
+  Qual a prioridade da minha ocorrência?
+  Consultar ocorrência
+beginDialog:
+  kind: OnRecognizedIntent
+  id: main
+  intent:
+    triggerQueries:
+      - consultar ocorrência
+      - status do meu protocolo
+      - acompanhar ocorrência
+      - situação da OC
+      - já analisaram minha ocorrência
+
+  actions:
+    - kind: Question
+      id: question_Vsy6Ox
+      interruptionPolicy:
+        allowInterruption: true
+
+      variable: init:Topic.OcorrenciaCodigo
+      prompt: "Digite ou cole aqui o código do protocolo da ocorrência, que você recebeu por e-mail (exemplo: OC20260925000126)."
+      entity: StringPrebuiltEntity
+
+    - kind: Question
+      id: question_u9bcSm
+      interruptionPolicy:
+        allowInterruption: true
+
+      variable: init:Topic.SolicitanteId
+      prompt: "Para confirmar, qual é o seu identificador de solicitante? (exemplo: USR01)"
+      entity: StringPrebuiltEntity
+
+    - kind: InvokeFlowAction
+      id: invokeFlowAction_F0rXgE
+      input:
+        binding:
+          text: =Topic.OcorrenciaCodigo
+          text_1: =Topic.SolicitanteId
+
+      output:
+        binding:
+          decisaohumana: Topic.DecisaoHumana
+          prioridade: Topic.Prioridade
+          quantidadeafetada: Topic.QuantidadeAfetada
+          resultado: Topic.Resultado
+          situacaoocorrencia: Topic.SituacaoOcorrencia
+          tipoocorrencia: Topic.TipoOcorrencia
+
+      flowId: 91207c7c-21b9-f111-aaae-002248e04b25
+
+    - kind: ConditionGroup
+      id: conditionGroup_NdhmWN
+      conditions:
+        - id: conditionItem_vlJjm0
+          condition: =Topic.Resultado = "OK"
+          actions:
+            - kind: SendActivity
+              id: sendActivity_X2FdUm
+              activity: "Encontrei o protocolo {Topic.OcorrenciaCodigo}: uma ocorrência de {Topic.TipoOcorrencia} com {Topic.QuantidadeAfetada} unidade(s) afetada(s), prioridade {Topic.Prioridade}, atualmente {Topic.SituacaoOcorrencia}."
+
+            - kind: SendActivity
+              id: sendActivity_KjVyCe
+              activity: "{Topic.DecisaoHumana}"
+
+      elseActions:
+        - kind: ConditionGroup
+          id: conditionGroup_TdArbH
+          conditions:
+            - id: conditionItem_jaB7B9
+              condition: =Topic.Resultado = "NAO_ENCONTRADO"
+              actions:
+                - kind: SendActivity
+                  id: sendActivity_r4FDDb
+                  activity: Não localizei nenhuma ocorrência com esse código. Confira se você digitou/colou o protocolo completo, exatamente como veio no e-mail de confirmação. Se preferir, posso ajudar a abrir uma nova ocorrência.
+
+          elseActions:
+            - kind: ConditionGroup
+              id: conditionGroup_Vq5szW
+              conditions:
+                - id: conditionItem_D9E71D
+                  condition: =Topic.Resultado = "NAO_AUTORIZADO"
+                  actions:
+                    - kind: SendActivity
+                      id: sendActivity_hpYY11
+                      activity: Esse protocolo não está disponível para o seu perfil. Se você acredita que deveria ter acesso, procure o operador responsável pela sua unidade.
+
+              elseActions:
+                - kind: SendActivity
+                  id: sendActivity_NGCB5q
+                  activity: Não consegui completar a consulta agora. Tente novamente em instantes ou procure o operador responsável.
+
+inputType: {}
+outputType: {}

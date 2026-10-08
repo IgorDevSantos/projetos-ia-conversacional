@@ -1,0 +1,37 @@
+mcs.metadata:
+  componentName: Fallback
+  description: Esse tópico do sistema é disparado quando o enunciado do usuário não corresponde aos tópicos existentes.
+kind: AdaptiveDialog
+beginDialog:
+  kind: OnUnknownIntent
+  id: main
+  actions:
+    - kind: ConditionGroup
+      id: conditionGroup_LktzXw
+      conditions:
+        - id: conditionItem_tlGIVo
+          condition: =System.FallbackCount < 3
+          actions:
+            - kind: SendActivity
+              id: sendMessage_QZreqo
+              activity: |-
+                Não entendi bem o seu pedido. Eu posso ajudar com:
+
+                - orientações sobre ocorrências de entrega;
+
+
+                - consulta de um pedido;
+
+
+                - abertura de uma ocorrência (avaria, falta ou impedimento);
+
+
+                - consulta do andamento de uma ocorrência.
+
+
+                Sobre qual desses assuntos você quer falar?
+
+      elseActions:
+        - kind: BeginDialog
+          id: 5aXj5M
+          dialog: cr113_Pietra.topic.Escalate

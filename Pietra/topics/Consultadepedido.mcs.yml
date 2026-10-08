@@ -1,0 +1,153 @@
+mcs.metadata:
+  componentName: Consulta de Pedido
+kind: AdaptiveDialog
+modelDescription: |-
+  permite ao solicitante verificar os dados de um pedido autorizado — destino, data prevista, quantidade e situação — antes de decidir se abre uma ocorrência. A Pietra retorna apenas os dados exatamente como gravados no SharePoint, e nunca mostra um pedido que não pertença ao solicitante autenticado; código não encontrado é tratado com orientação, e tentativa de acesso a pedido de terceiro é negada e registrada no histórico.
+
+  Frases gatilho:
+
+  Quero consultar um pedido
+  Onde está meu pedido?
+  Qual a situação do pedido PED00X?
+  Meu pedido já foi entregue?
+  Quando chega meu pedido?
+  Meu pedido está programado ou impedido?
+  Quero ver os detalhes do pedido X
+  Consultar pedido
+beginDialog:
+  kind: OnRecognizedIntent
+  id: main
+  intent:
+    triggerQueries:
+      - Quero consultar um pedido
+      - Onde está meu pedido?
+      - Qual a situação do pedido PED00X?
+      - Meu pedido já foi entregue?
+      - Quando chega meu pedido?
+      - Meu pedido está programado ou impedido?
+      - Quero ver os detalhes do pedido X
+      - Consultar pedido
+
+  actions:
+    - kind: Question
+      id: question_NtZkex
+      interruptionPolicy:
+        allowInterruption: true
+
+      variable: init:Topic.SolicitanteInformado
+      prompt: Qual é o seu identificador de solicitante?
+      entity: StringPrebuiltEntity
+
+    - kind: Question
+      id: question_VBVehv
+      interruptionPolicy:
+        allowInterruption: true
+
+      variable: init:Topic.PedidoCodigo
+      prompt: Claro! Qual o código do pedido?
+      entity: StringPrebuiltEntity
+
+    - kind: InvokeFlowAction
+      id: invokeFlowAction_SVtf5M
+      input:
+        binding:
+          text: =Topic.PedidoCodigo
+
+      output:
+        binding:
+          _encontrado: Topic.Encontrado
+          dataprevista: Topic.DataPrevista
+          destino: Topic.Destino
+          quantidadeprevista: Topic.QuantidadePrevista
+          situacao: Topic.Situacao
+          solicitanteid: Topic.SolicitanteId
+
+      flowId: f3942875-5cb7-f111-aaae-002248e04b25
+
+    - kind: ConditionGroup
+      id: conditionGroup_fBdP5S
+      conditions:
+        - id: conditionItem_jMkpEn
+          condition: =Topic.Encontrado = "sim"
+          actions:
+            - kind: ConditionGroup
+              id: conditionGroup_wkMAw4
+              conditions:
+                - id: conditionItem_1J9eRA
+                  condition: =Topic.SolicitanteInformado = Topic.SolicitanteId
+
+              elseActions:
+                - kind: SendActivity
+                  id: sendActivity_bsRQYJ
+                  activity: Não é possível exibir os dados deste pedido.
+
+                - kind: EndDialog
+                  id: MQG5dr
+
+            - kind: SendActivity
+              id: sendActivity_x9dZki
+              activity: |-
+                Encontrei o pedido **{Topic.PedidoCodigo}**!
+
+                **Destino:** {Topic.Destino}
+
+
+                **Data prevista:** {Topic.DataPrevista}
+
+
+                **Quantidade:** {Topic.QuantidadePrevista} unidades
+
+
+                **Situação:** {Topic.Situacao}
+
+            - kind: Question
+              id: question_4dKozm
+              interruptionPolicy:
+                allowInterruption: true
+
+              variable: init:Topic.Ajuda1
+              prompt: Posso ajudar com mais alguma coisa?
+              entity:
+                kind: EmbeddedEntity
+                definition:
+                  kind: ClosedListEntity
+                  items:
+                    - id: Sim
+                      displayName: Sim
+
+                    - id: Não
+                      displayName: Não
+
+            - kind: ConditionGroup
+              id: conditionGroup_jZrdri
+              conditions:
+                - id: conditionItem_5T3aD2
+                  condition: =Topic.Ajuda1 = 'cr113_Pietra.topic.Consultadepedido.main.question_4dKozm'.Sim
+                  actions:
+                    - kind: BeginDialog
+                      id: 9S2KWh
+                      dialog: cr113_Pietra.topic.ConversationStart
+
+                - id: conditionItem_VuN3iY
+                  condition: =Topic.Ajuda1 = 'cr113_Pietra.topic.Consultadepedido.main.question_4dKozm'.Não
+                  actions:
+                    - kind: BeginDialog
+                      id: tNtGxd
+                      dialog: cr113_Pietra.topic.EndofConversation
+
+              elseActions:
+                - kind: SendActivity
+                  id: sendActivity_clYVb3
+                  activity: Desculpa, mas não entendi a sua solicitação. Poderia me informa-la mais uma vez?
+
+      elseActions:
+        - kind: SendActivity
+          id: sendActivity_nwClZ8
+          activity: Não encontrei nenhum pedido com o código {Topic.PedidoCodigo}. Confira se digitou certo (o formato é algo como PED001).
+
+        - kind: GotoAction
+          id: sVaMkz
+          actionId: question_VBVehv
+
+inputType: {}
+outputType: {}
