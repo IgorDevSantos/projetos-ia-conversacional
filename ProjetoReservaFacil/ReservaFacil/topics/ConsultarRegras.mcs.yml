@@ -1,0 +1,70 @@
+mcs.metadata:
+  componentName: "Consultar Regras "
+kind: AdaptiveDialog
+beginDialog:
+  kind: OnRecognizedIntent
+  id: main
+  intent:
+    displayName:
+    triggerQueries:
+      - consultar regras
+      - quais são as regras
+      - mostrar regras
+      - ver regras
+      - regras do sistema
+      - me diga as regras
+      - onde encontro as regras
+      - preciso das regras
+      - informações sobre as regras
+      - listar regras
+
+  actions:
+    - kind: Question
+      id: question_iNglbV
+      interruptionPolicy:
+        allowInterruption: true
+
+      variable: init:Topic.Var1
+      prompt: Posso ajudar com alguma dúvida ou gostaria de iniciar uma solicitação de reserva agora?
+      entity:
+        kind: EmbeddedEntity
+        definition:
+          kind: ClosedListEntity
+          items:
+            - id: Iniciar solicitação de reserva
+              displayName: Iniciar solicitação de reserva
+
+            - id: Tirar outra dúvida
+              displayName: Tirar outra dúvida
+
+            - id: Encerrar
+              displayName: Encerrar
+
+    - kind: ConditionGroup
+      id: conditionGroup_tIoEsQ
+      conditions:
+        - id: conditionItem_LwMYQh
+          condition: =Topic.Var1 = 'cr113_ReservaFacilqST1I4.topic.ConsultarRegras.main.question_iNglbV'.'Iniciar solicitação de reserva'
+          displayName: Iniciar solicitação de reserva
+          actions:
+            - kind: BeginDialog
+              id: gVwt7T
+              dialog: cr113_ReservaFacilqST1I4.topic.SolicitarReserva
+
+        - id: conditionItem_RhXdYq
+          condition: =Topic.Var1 = 'cr113_ReservaFacilqST1I4.topic.ConsultarRegras.main.question_iNglbV'.'Tirar outra dúvida'
+          displayName: Tirar outra dúvida
+          actions:
+            - kind: SendActivity
+              id: sendActivity_ncYRI4
+              activity: Pode me dizer quais sua dúvidas ?
+
+        - id: conditionItem_RdVvW7
+          condition: =Topic.Var1 = 'cr113_ReservaFacilqST1I4.topic.ConsultarRegras.main.question_iNglbV'.Encerrar
+          actions:
+            - kind: SendActivity
+              id: sendActivity_V0bZzy
+              activity: Obrigado por utilizar o ReservaFácil! Tenha um ótimo dia.
+
+inputType: {}
+outputType: {}

@@ -1,0 +1,163 @@
+﻿{
+  "properties": {
+    "connectionReferences": {
+      "shared_sharepointonline": {
+        "api": {
+          "name": "shared_sharepointonline"
+        },
+        "connection": {
+          "connectionReferenceLogicalName": "new_sharedsharepointonline_becbf"
+        },
+        "runtimeSource": "embedded"
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "actions": {
+        "Obter_itens": {
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "dataset": "https://escolatrabalhador4-my.sharepoint.com/personal/nathaliadebellis_escoladotrabalhador40_com_br",
+              "table": "79bc3b2f-8317-46aa-aa9a-fa49369d4479",
+              "$filter": "Title eq \u0027@{triggerBody()?[\u0027text\u0027]}\u0027"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "operationId": "GetItems",
+              "connectionName": "shared_sharepointonline"
+            }
+          },
+          "runAfter": {}
+        },
+        "Condi\u00E7\u00E3o": {
+          "type": "If",
+          "expression": {
+            "and": [
+              {
+                "equals": [
+                  "@length(outputs(\u0027Obter_itens\u0027)?[\u0027body/value\u0027])",
+                  0
+                ]
+              }
+            ]
+          },
+          "actions": {
+            "Compor_1": {
+              "type": "Compose",
+              "inputs": "@triggerBody()?[\u0027text\u0027]"
+            },
+            "Responder_ao_agente": {
+              "type": "Response",
+              "kind": "Skills",
+              "inputs": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "protocolo": {
+                      "title": "Protocolo",
+                      "description": "",
+                      "type": "string",
+                      "x-ms-content-hint": "TEXT",
+                      "x-ms-dynamically-added": true
+                    }
+                  },
+                  "additionalProperties": {}
+                },
+                "statusCode": 200,
+                "body": {
+                  "protocolo": "Nenhuma solicita\u00E7\u00E3o foi encontrada com o protocolo @{triggerBody()?[\u0027text\u0027]}. Verifique o n\u00FAmero e tente novamente."
+                }
+              },
+              "runAfter": {
+                "Compor_1": [
+                  "SUCCEEDED"
+                ]
+              }
+            }
+          },
+          "else": {
+            "actions": {
+              "Compor": {
+                "type": "Compose",
+                "inputs": "@first(outputs(\u0027Obter_itens\u0027)?[\u0027body/value\u0027])?[\u0027Status\u0027]?[\u0027Value\u0027]"
+              },
+              "Responder_ao_agente_1": {
+                "type": "Response",
+                "kind": "Skills",
+                "inputs": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "protocolo": {
+                        "title": "Protocolo",
+                        "description": "",
+                        "type": "string",
+                        "x-ms-content-hint": "TEXT",
+                        "x-ms-dynamically-added": true
+                      }
+                    },
+                    "additionalProperties": {}
+                  },
+                  "statusCode": 200,
+                  "body": {
+                    "protocolo": "O seu protocolo est\u00E1 com o status: @{outputs(\u0027Compor\u0027)}"
+                  }
+                },
+                "runAfter": {
+                  "Compor": [
+                    "SUCCEEDED"
+                  ]
+                }
+              }
+            }
+          },
+          "runAfter": {
+            "Obter_itens": [
+              "SUCCEEDED"
+            ]
+          }
+        }
+      },
+      "triggers": {
+        "manual": {
+          "type": "Request",
+          "kind": "Skills",
+          "inputs": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "description": "",
+                  "title": "Protocolo",
+                  "type": "string",
+                  "x-ms-content-hint": "TEXT",
+                  "x-ms-dynamically-added": true
+                }
+              },
+              "required": [
+                "text"
+              ]
+            }
+          }
+        }
+      },
+      "parameters": {
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        },
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        }
+      },
+      "outputs": {},
+      "metadata": {
+        "defaultToEmbeddedConnections": true
+      }
+    }
+  },
+  "schemaVersion": "1.0.0.0"
+}

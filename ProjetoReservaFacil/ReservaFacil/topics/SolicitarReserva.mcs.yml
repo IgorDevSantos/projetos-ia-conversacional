@@ -1,0 +1,202 @@
+mcs.metadata:
+  componentName: "Solicitar Reserva "
+kind: AdaptiveDialog
+modelDescription: Este tópico deve ser acionado quando o usuário quiser solicitar, agendar, marcar ou pedir uma reserva de sala de reunião ou auditório.
+beginDialog:
+  kind: OnRecognizedIntent
+  id: main
+  intent:
+    triggerQueries:
+      - solicitar reserva
+      - quiero hacer una reserva
+      - reservar una mesa
+      - puedo reservar
+      - cómo hago una reserva
+      - me gustaría reservar
+      - hacer una reservación
+      - necesito reservar
+      - reserva por favor
+      - puedes ayudarme a reservar
+
+  actions:
+    - kind: Question
+      id: question_kOXHOi
+      interruptionPolicy:
+        allowInterruption: true
+
+      variable: init:Global.gblNome
+      prompt: "Como devo te chamar ? "
+      entity: StringPrebuiltEntity
+
+    - kind: Question
+      id: question_yaFSfK
+      interruptionPolicy:
+        allowInterruption: true
+
+      variable: init:Global.gblEmail
+      prompt: "Qual o e-mail para contato ? "
+      entity: EmailPrebuiltEntity
+
+    - kind: Question
+      id: question_LfxfEv
+      interruptionPolicy:
+        allowInterruption: true
+
+      repeatCount: 0
+      variable: init:Topic.varData
+      prompt: "Qual é a data desejada ? "
+      entity: DateTimePrebuiltEntity
+
+    - kind: Question
+      id: question_d6DFtH
+      interruptionPolicy:
+        allowInterruption: true
+
+      variable: init:Topic.varHorario
+      prompt: "Qual é o horário da reunião (início e término)? "
+      entity: StringPrebuiltEntity
+
+    - kind: Question
+      id: fdsRLX
+      interruptionPolicy:
+        allowInterruption: true
+
+      variable: init:Topic.varParticipantes
+      prompt: "Quantas pessoas participarão? "
+      entity: NumberPrebuiltEntity
+
+    - kind: Question
+      id: 5TmeNt
+      interruptionPolicy:
+        allowInterruption: true
+
+      variable: init:Topic.varTipoReuniao
+      prompt: Qual o tipo de reunião ?
+      entity:
+        kind: EmbeddedEntity
+        definition:
+          kind: ClosedListEntity
+          items:
+            - id: Reunião executiva.
+              displayName: Reunião executiva.
+
+            - id: Treinamento
+              displayName: Treinamento
+
+            - id: Outros
+              displayName: Outros
+
+    - kind: ConditionGroup
+      id: vPdDDX
+      conditions:
+        - id: rVugNb
+          condition: =Topic.varTipoReuniao = 'cr113_ReservaFacilqST1I4.topic.SolicitarReserva.main.5TmeNt'.'Reunião executiva.'
+
+        - id: abnGWQ
+          condition: =Topic.varTipoReuniao = 'cr113_ReservaFacilqST1I4.topic.SolicitarReserva.main.5TmeNt'.Treinamento
+
+        - id: rHY7SY
+          condition: =Topic.varTipoReuniao = 'cr113_ReservaFacilqST1I4.topic.SolicitarReserva.main.5TmeNt'.Outros
+
+    - kind: ConditionGroup
+      id: conditionGroup_11b42i
+      conditions:
+        - id: conditionItem_0QZa2R
+          condition: =Topic.varParticipantes <= 6
+          actions:
+            - kind: SetVariable
+              id: setVariable_wQxS9t
+              variable: Global.varSalaSugerida
+              value: Sala Horizonte
+
+            - kind: SendActivity
+              id: sendActivity_7e1Vzs
+              activity: Nossa sugestão de sala é a {Global.varSalaSugerida}
+
+        - id: conditionItem_FsJ04E
+          condition: =Topic.varParticipantes >= 7 && Topic.varParticipantes <= 12
+          actions:
+            - kind: SetVariable
+              id: setVariable_UELGFG
+              variable: Global.varSalaSugerida
+              value: Sala Conexão
+
+            - kind: SendActivity
+              id: EYG8nW
+              activity: Nossa sugestão de sala é a {Global.varSalaSugerida}
+
+        - id: conditionItem_zjgbfA
+          condition: =Topic.varParticipantes > 12 && Topic.varParticipantes <= 40
+          actions:
+            - kind: SetVariable
+              id: setVariable_1Ri7sf
+              variable: Global.varSalaSugerida
+              value: Auditório
+
+            - kind: SendActivity
+              id: GNrOeF
+              activity: Nossa sugestão de sala é a{Global.varSalaSugerida}
+
+      elseActions:
+        - kind: SendActivity
+          id: sendActivity_kJc2xW
+          activity: Nenhuma de nossas salas cadastradas comporta grupos com mais de 40 pessoas. Sua solicitação precisará ser encaminhada para análise humana da equipe de Facilities.
+
+        - kind: SetVariable
+          id: setVariable_xzBmtE
+          variable: Global.varSalaSugerida
+          value: Nenhuma (Excede capacidade)
+
+        - kind: SendActivity
+          id: bpu2MN
+          activity: "{Global.varSalaSugerida}"
+
+    - kind: ConditionGroup
+      id: conditionGroup_U9Os4w
+      conditions:
+        - id: conditionItem_4svVB4
+          condition: =Topic.varTipoReuniao = 'cr113_ReservaFacilqST1I4.topic.SolicitarReserva.main.5TmeNt'.'Reunião executiva.'
+          displayName: Prioridade Alta
+          actions:
+            - kind: SetVariable
+              id: setVariable_Ssv0gL
+              variable: Topic.varPrioridade
+              value: Alta
+
+        - id: conditionItem_hr17js
+          condition: =Topic.varTipoReuniao = 'cr113_ReservaFacilqST1I4.topic.SolicitarReserva.main.5TmeNt'.Treinamento && Topic.varParticipantes >= 15
+          displayName: Prioridade Alta
+          actions:
+            - kind: SetVariable
+              id: setVariable_Ato85e
+              variable: Topic.varPrioridade
+              value: Alta
+
+      elseActions:
+        - kind: SetVariable
+          id: setVariable_UGszCR
+          variable: Topic.varPrioridade
+          value: Normal
+
+    - kind: SetVariable
+      id: setVariable_Ey0Jpx
+      variable: Global.varProtocolo
+      value: =Text(Now(), "yyyyMMddhhmmss")
+
+    - kind: SendActivity
+      id: sendActivity_ekL0gS
+      activity: |-
+        Reserva registrada com sucesso, {Global.gblNome}**Resumo da Solicitação:**
+        - **Protocolo:** {Global.varProtocolo}
+        - **E-mail:** {Global.gblEmail}
+        - **Data / Horário:** {Topic.varData} às {Topic.varHorario}
+        - **Sala Indicada:** {Global.varSalaSugerida}
+        - **Prioridade do Atendimento:** {Topic.varPrioridade}
+
+        _Enviamos uma cópia dos detalhes para o seu e-mail."_ Aguarde que a resposta de confirmaçao chegará no e-mail cadastrado
+
+    - kind: EndConversation
+      id: l1q1on
+
+inputType: {}
+outputType: {}

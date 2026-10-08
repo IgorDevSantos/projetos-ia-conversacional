@@ -1,0 +1,57 @@
+mcs.metadata:
+  componentName: Saudação
+  description: Esse tópico é disparado quando o usuário cumprimenta o agente.
+kind: AdaptiveDialog
+beginDialog:
+  kind: OnRecognizedIntent
+  id: main
+  intent:
+    displayName: Saudação
+    includeInOnSelectIntent: false
+    triggerQueries:
+      - Boa tarde
+      - Bom dia
+      - Olá
+      - Ei
+      - Oi
+      - Boa noite
+      - E aí
+      - Oi, tudo bem?
+      - Você pode me ajudar?
+      - Começar
+
+  actions:
+    - kind: Question
+      id: question_bBhisJ
+      interruptionPolicy:
+        allowInterruption: true
+
+      variable: init:Topic.EscolhaSaudação
+      prompt: "Olá! Eu sou o EmprestAI, assistente virtual para empréstimo de equipamentos. Posso te ajudar a:"
+      entity:
+        kind: EmbeddedEntity
+        definition:
+          kind: ClosedListEntity
+          items:
+            - id: Registrar uma nova solicitação de empréstimo
+              displayName: Registrar uma nova solicitação de empréstimo
+
+            - id: Consultar o status de uma solicitação existente
+              displayName: Consultar o status de uma solicitação existente
+
+    - kind: ConditionGroup
+      id: conditionGroup_4YdJNV
+      conditions:
+        - id: conditionItem_gJiS3M
+          condition: =Topic.EscolhaSaudação = 'cr113_AssistentedeEmprstimodeEquipamentos.topic.Greeting.main.question_bBhisJ'.'Registrar uma nova solicitação de empréstimo'
+          actions:
+            - kind: BeginDialog
+              id: 4qMKfj
+              dialog: cr113_AssistentedeEmprstimodeEquipamentos.topic.Solicitaremprstimo_kSV
+
+        - id: conditionItem_eENQVG
+          condition: =Topic.EscolhaSaudação = 'cr113_AssistentedeEmprstimodeEquipamentos.topic.Greeting.main.question_bBhisJ'.'Consultar o status de uma solicitação existente'
+          actions:
+            - kind: BeginDialog
+              id: eXiJo4
+              dialog: cr113_AssistentedeEmprstimodeEquipamentos.topic.Semttulo

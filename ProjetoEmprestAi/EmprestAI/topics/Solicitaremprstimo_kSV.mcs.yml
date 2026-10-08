@@ -1,0 +1,285 @@
+mcs.metadata:
+  componentName: Solicitar Empréstimo
+kind: AdaptiveDialog
+modelDescription: Registrar uma solicitação de empréstimo de equipamentos.
+beginDialog:
+  kind: OnRecognizedIntent
+  id: main
+  intent:
+    triggerQueries:
+      - Gostaria de solicitar um empréstimo
+      - Solicitar equipamento
+      - Solicitar empréstimo
+      - Solicitar equipamento
+      - Fazer empréstimo de equipamento
+      - Pedir equipamento emprestado
+      - Preciso solicitar um equipamento
+      - Quero solicitar um equipamento
+      - Fazer requisição de equipamento
+
+  actions:
+    - kind: Question
+      id: question_nome
+      variable: Topic.varSolicitante
+      prompt: Informe seu nome para iniciarmos a solicitação.
+      entity: StringPrebuiltEntity
+
+    - kind: Question
+      id: question_pNZcsU
+      interruptionPolicy:
+        allowInterruption: true
+
+      variable: init:Topic.varEmail
+      prompt: Qual o seu e-mail para receber a confirmação?
+      entity: StringPrebuiltEntity
+
+    - kind: Question
+      id: question_OrEdGs
+      interruptionPolicy:
+        allowInterruption: true
+
+      variable: init:Topic.varCelular
+      prompt: E o número do celular, que você utiliza o WhatsApp?
+      entity: StringPrebuiltEntity
+
+    - kind: Question
+      id: question_equipamento
+      variable: Topic.varEquipamento
+      prompt: Qual equipamento deseja solicitar?
+      entity:
+        kind: EmbeddedEntity
+        definition:
+          kind: ClosedListEntity
+          items:
+            - id: Notebook
+              displayName: Notebook
+
+            - id: Projetor
+              displayName: Projetor
+
+            - id: Webcam
+              displayName: Webcam
+
+            - id: Headset
+              displayName: Headset
+
+            - id: Monitor
+              displayName: Monitor
+
+            - id: Teclado
+              displayName: Teclado
+
+            - id: Mouse
+              displayName: Mouse
+
+    - kind: Question
+      id: question_quantidade
+      variable: Topic.varQuantidade
+      prompt: Qual quantidade deseja solicitar?
+      entity:
+        kind: EmbeddedEntity
+        definition:
+          kind: ClosedListEntity
+          items:
+            - id: 1
+              displayName: 1
+
+            - id: 2
+              displayName: 2
+
+            - id: 3
+              displayName: 3
+
+            - id: 5
+              displayName: 5
+
+            - id: 8
+              displayName: 8
+
+            - id: 10
+              displayName: 10
+
+    - kind: Question
+      id: question_retirada
+      variable: Topic.varDataRetirada
+      prompt: Informe a data de retirada.
+      entity:
+        kind: RegexEntityReference
+        entityId: cr113_AssistentedeEmprstimodeEquipamentos.entity.Data_BR-
+
+    - kind: Question
+      id: question_devolucao
+      variable: Topic.varDataDevolucao
+      prompt: Informe a data de devolução.
+      entity:
+        kind: RegexEntityReference
+        entityId: cr113_AssistentedeEmprstimodeEquipamentos.entity.Data_BR-
+
+    - kind: SendActivity
+      id: debug_datas
+      activity: |-
+        Retirada: {Topic.varDataRetirada}
+
+        Devolução: {Topic.varDataDevolucao}
+
+    - kind: ConditionGroup
+      id: conditionGroup_uP6Hwr
+      conditions:
+        - id: conditionItem_R7q5Cx
+          condition: =Value(Right(Topic.varDataDevolucao,4) & Mid(Topic.varDataDevolucao,4,2) & Left(Topic.varDataDevolucao,2)) < Value(Right(Topic.varDataRetirada,4) & Mid(Topic.varDataRetirada,4,2) & Left(Topic.varDataRetirada,2))
+          actions:
+            - kind: SendActivity
+              id: sendActivity_ygqs0f
+              activity: A data de devolução não pode ser anterior à data de retirada.
+
+            - kind: GotoAction
+              id: mrQMA7
+              actionId: question_retirada
+
+      elseActions:
+        - kind: Question
+          id: question_FPH6GH
+          interruptionPolicy:
+            allowInterruption: true
+
+          variable: init:Topic.varFinalidade
+          prompt: Qual a finalidade do empréstimo?
+          entity:
+            kind: EmbeddedEntity
+            definition:
+              kind: ClosedListEntity
+              items:
+                - id: Reunião
+                  displayName: Reunião
+
+                - id: Treinamento
+                  displayName: Treinamento
+
+                - id: Apresentação
+                  displayName: Apresentação
+
+                - id: Evento
+                  displayName: Evento
+
+                - id: Trabalho Remoto
+                  displayName: Trabalho Remoto
+
+                - id: Outro
+                  displayName: Outro
+
+        - kind: Question
+          id: question_OiQ5D3
+          interruptionPolicy:
+            allowInterruption: true
+
+          variable: init:Topic.varProsseguir
+          prompt: |-
+            Segue abaixo detalhes da sua solicitação:
+
+            **Solicitante**: {Topic.varSolicitante}
+
+            **Equipamento:** {Topic.varEquipamento}
+
+            **Quantidade**: {Topic.varQuantidade}
+
+            **Finalidade**: {Topic.varFinalidade}
+
+            **Data de Retirada**: {Topic.varDataRetirada}
+
+            **Data de Devolução**: {Topic.varDataDevolucao}
+
+            Deseja prosseguir com o seu empréstimo?
+          entity:
+            kind: EmbeddedEntity
+            definition:
+              kind: ClosedListEntity
+              items:
+                - id: Sim
+                  displayName: Sim
+
+                - id: Não
+                  displayName: Não
+
+        - kind: ConditionGroup
+          id: conditionGroup_qp7995
+          conditions:
+            - id: conditionItem_kQeTyz
+              condition: =Topic.varProsseguir = 'cr113_AssistentedeEmprstimodeEquipamentos.topic.Solicitaremprstimo_kSV.main.question_OiQ5D3'.Não
+              actions:
+                - kind: SendActivity
+                  id: sendActivity_Ma3m3I
+                  activity: Sem problemas! Quando quiser realizar um empréstimo é só me chamar.
+
+                - kind: EndDialog
+                  id: 9qvKQ3
+
+            - id: conditionItem_XPUYSV
+              condition: =Topic.varProsseguir = 'cr113_AssistentedeEmprstimodeEquipamentos.topic.Solicitaremprstimo_kSV.main.question_OiQ5D3'.Sim
+
+          elseActions:
+            - kind: BeginDialog
+              id: XdLiig
+              dialog: cr113_AssistentedeEmprstimodeEquipamentos.topic.Fallback
+
+        - kind: InvokeFlowAction
+          id: invokeFlowAction_xhh7pd
+          input:
+            binding:
+              date: "=Right(Topic.varDataRetirada,4) & \"-\" & Mid(Topic.varDataRetirada,4,2) & \"-\" & Left(Topic.varDataRetirada,2) "
+              date_1: "= Right(Topic.varDataDevolucao,4) & \"-\" & Mid(Topic.varDataDevolucao,4,2) & \"-\" & Left(Topic.varDataDevolucao,2) "
+              number: =Value(Text(Topic.varQuantidade))
+              text: =Text(Topic.varFinalidade)
+              text_1: =Topic.varSolicitante
+              text_2: =Text(Topic.varEquipamento)
+              text_3: =Topic.varEmail
+              text_4: =Topic.varCelular
+
+          output:
+            binding:
+              protocolo: Topic.Protocolo
+              status: Topic.Status
+
+          flowId: 8ea36886-65b1-f111-aaab-002248e04b25
+
+        - kind: SendActivity
+          id: sendActivity_4TExgw
+          activity: |-
+            _Solicitação registrada com sucesso!_
+
+            **Protocolo:** {Topic.Protocolo}
+
+
+            **Solicitante:** {Topic.varSolicitante}
+
+
+            **E-mail:** {Topic.varEmail}
+
+
+            **Celular:** {Topic.varCelular}
+
+
+            **Equipamento:** {Topic.varEquipamento}
+
+
+            **Quantidade:** {Topic.varQuantidade}
+
+
+            **Data de retirada:** {Topic.varDataRetirada}
+
+
+            **Data de devolução:** {Topic.varDataDevolucao}
+
+
+            **Finalidade:** {Topic.varFinalidade}
+
+
+            **Status:** {Topic.Status}
+
+
+            _Guarde o protocolo para consultar o status da sua solicitação posteriormente._
+
+        - kind: EndDialog
+          id: T6RBGg
+
+inputType: {}
+outputType: {}

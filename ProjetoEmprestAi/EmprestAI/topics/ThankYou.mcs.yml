@@ -1,0 +1,71 @@
+mcs.metadata:
+  componentName: Obrigado
+  description: Esse tópico é disparado quando o usuário agradece.
+kind: AdaptiveDialog
+beginDialog:
+  kind: OnRecognizedIntent
+  id: main
+  intent:
+    displayName: Obrigado
+    includeInOnSelectIntent: false
+    triggerQueries:
+      - obrigado
+      - obrigada
+      - agradeço
+      - muito obrigado
+      - muito obrigada
+      - valeu
+      - Valeu
+      - Agradeço
+      - Agradecido
+      - Era isso, obrigado
+      - Ótimo, obrigado
+      - Perfeito, obrigado
+
+  actions:
+    - kind: SendActivity
+      id: sendMessage_9iz6v7
+      activity: De nada! Fico à disposição caso precise registrar uma nova solicitação ou consultar o status de um empréstimo.
+
+    - kind: Question
+      id: question_jZ92TH
+      interruptionPolicy:
+        allowInterruption: true
+
+      variable: init:Topic.OpçãoEncerrar
+      prompt: Posso te ajudar com mais alguma coisa?
+      entity:
+        kind: EmbeddedEntity
+        definition:
+          kind: ClosedListEntity
+          items:
+            - id: Sim
+              displayName: Sim
+
+            - id: Não
+              displayName: Não
+
+    - kind: ConditionGroup
+      id: conditionGroup_WP7ixt
+      conditions:
+        - id: conditionItem_b1AoVa
+          condition: =Topic.OpçãoEncerrar = 'cr113_AssistentedeEmprstimodeEquipamentos.topic.ThankYou.main.question_jZ92TH'.Sim
+          actions:
+            - kind: SendActivity
+              id: sendActivity_ptWnHf
+              activity: "Digite o que você precisa: registrar um empréstimo ou consultar um protocolo."
+
+        - id: conditionItem_GoI8mv
+          condition: =Topic.OpçãoEncerrar = 'cr113_AssistentedeEmprstimodeEquipamentos.topic.ThankYou.main.question_jZ92TH'.Não
+          actions:
+            - kind: SendActivity
+              id: sendActivity_bxVuBQ
+              activity: Obrigado(a) por utilizar o EmprestAI. Até a próxima!
+
+            - kind: EndConversation
+              id: kvyhSA
+
+      elseActions:
+        - kind: SendActivity
+          id: sendActivity_EMwHa1
+          activity: "Não entendi a sua solicitação. Você quer: encerrar o atendimento, registrar um empréstimo ou consultar um protocolo?"

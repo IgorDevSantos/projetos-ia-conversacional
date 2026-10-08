@@ -1,0 +1,10 @@
+mcs.metadata:
+  componentName: Base_Conhecimento_ReservaFacil.txt
+  description: Esta fonte de conhecimento fornece informações encontradas em Base_Conhecimento_ReservaFacil.txt.
+kind: KnowledgeSourceConfiguration
+source:
+  kind: FederatedStructuredSearchSource
+  connectionProperties:
+    mode: Invoker
+
+  skillConfiguration: Base_Conhecimento_ReservaFaciltxt_DcK4sQl5qefZClsoHuonU

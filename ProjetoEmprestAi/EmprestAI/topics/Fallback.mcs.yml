@@ -1,0 +1,22 @@
+mcs.metadata:
+  componentName: Fallback
+  description: Esse tópico do sistema é disparado quando o enunciado do usuário não corresponde aos tópicos existentes.
+kind: AdaptiveDialog
+beginDialog:
+  kind: OnUnknownIntent
+  id: main
+  actions:
+    - kind: ConditionGroup
+      id: conditionGroup_LktzXw
+      conditions:
+        - id: conditionItem_tlGIVo
+          condition: =System.FallbackCount < 3
+          actions:
+            - kind: SendActivity
+              id: sendMessage_QZreqo
+              activity: Não entendi sua solicitação. Posso te ajudar a registrar um novo empréstimo de equipamento ou consultar o status de uma solicitação existente pelo protocolo. O que você gostaria de fazer?
+
+      elseActions:
+        - kind: BeginDialog
+          id: 5aXj5M
+          dialog: cr113_AssistentedeEmprstimodeEquipamentos.topic.Escalate

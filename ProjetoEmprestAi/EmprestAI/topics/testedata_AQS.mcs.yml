@@ -1,0 +1,92 @@
+mcs.metadata:
+  componentName: "teste data "
+kind: AdaptiveDialog
+beginDialog:
+  kind: OnRecognizedIntent
+  id: main
+  intent:
+    triggerQueries:
+      - teste
+      - teste
+
+  actions:
+    - kind: Question
+      id: question_5OS6d9
+      interruptionPolicy:
+        allowInterruption: true
+
+      variable: init:Topic.Var1
+      prompt: data01
+      entity: DatePrebuiltEntity
+
+    - kind: ConditionGroup
+      id: conditionGroup_u9xF4I
+      conditions:
+        - id: conditionItem_zADZOz
+          condition: =Topic.Var1 >= Today()
+
+      elseActions:
+        - kind: Question
+          id: question_jP4AwQ
+          interruptionPolicy:
+            allowInterruption: true
+
+          variable: init:Topic.Var5
+          prompt: INSIRA UMA DATA QUE NAO ESTEJA NO PASSADO.
+          entity: DatePrebuiltEntity
+
+        - kind: SetVariable
+          id: setVariable_97vxWJ
+          variable: Topic.Var1
+          value: =Topic.Var5
+
+    - kind: Question
+      id: question_Dy2Hjo
+      interruptionPolicy:
+        allowInterruption: true
+
+      variable: init:Topic.Var2
+      prompt: data02
+      entity: DatePrebuiltEntity
+
+    - kind: ConditionGroup
+      id: conditionGroup_vb1vFi
+      conditions:
+        - id: conditionItem_DvKIiz
+          condition: =Topic.Var2 <= DateAdd(Topic.Var1, 7, TimeUnit.Days)
+
+      elseActions:
+        - kind: Question
+          id: question_dAcvlf
+          interruptionPolicy:
+            allowInterruption: true
+
+          variable: init:Topic.Var6
+          prompt: "Insira uma data menor que 7 dias. "
+          entity: DatePrebuiltEntity
+
+        - kind: SetVariable
+          id: setVariable_aUu5eZ
+          variable: Topic.Var2
+          value: =Topic.Var6
+
+    - kind: InvokeFlowAction
+      id: invokeFlowAction_BKkNre
+      input:
+        binding:
+          date: =Text(Topic.Var1, "yyyy-MM-dd")
+          date_1: =Text(Topic.Var2, "yyyy-MM-dd")
+
+      output:
+        binding:
+          dat01: Topic.Var3
+          dat02: Topic.Var4
+
+      flowId: 8da08768-2bb2-f111-aaab-002248e04b25
+
+    - kind: SendActivity
+      id: sendActivity_4N4Ilk
+      activity: "01:({Topic.Var3})02: ({Topic.Var4})"
+
+inputType: {}
+outputType: {}

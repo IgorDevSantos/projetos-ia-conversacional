@@ -1,0 +1,124 @@
+﻿{
+  "properties": {
+    "connectionReferences": {
+      "shared_office365": {
+        "api": {
+          "name": "shared_office365"
+        },
+        "connection": {
+          "connectionReferenceLogicalName": "new_sharedoffice365_71fcb"
+        },
+        "runtimeSource": "embedded"
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "actions": {
+        "Enviar_um_email_(V2)": {
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "emailMessage/To": "israel87178669@gmail.com",
+              "emailMessage/Subject": "teste ",
+              "emailMessage/Body": "\u003Cp class=\u0022editor-paragraph\u0022\u003E@{triggerBody()?[\u0027date\u0027]}@{triggerBody()?[\u0027date_1\u0027]}\u003C/p\u003E",
+              "emailMessage/Importance": "Normal"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365",
+              "operationId": "SendEmailV2",
+              "connectionName": "shared_office365"
+            }
+          },
+          "runAfter": {}
+        },
+        "Responder_ao_agente": {
+          "type": "Response",
+          "kind": "Skills",
+          "inputs": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "dat01": {
+                  "title": "dat01",
+                  "description": "",
+                  "type": "string",
+                  "format": "date",
+                  "x-ms-content-hint": "DATE",
+                  "x-ms-dynamically-added": true
+                },
+                "dat02": {
+                  "title": "dat02",
+                  "description": "",
+                  "type": "string",
+                  "format": "date",
+                  "x-ms-content-hint": "DATE",
+                  "x-ms-dynamically-added": true
+                }
+              },
+              "additionalProperties": {}
+            },
+            "statusCode": 200,
+            "body": {
+              "dat01": "@{triggerBody()?[\u0027date\u0027]}",
+              "dat02": "@{triggerBody()?[\u0027date_1\u0027]}"
+            }
+          },
+          "runAfter": {
+            "Enviar_um_email_(V2)": [
+              "SUCCEEDED"
+            ]
+          }
+        }
+      },
+      "triggers": {
+        "manual": {
+          "type": "Request",
+          "kind": "Skills",
+          "inputs": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "date": {
+                  "description": "Inserir ou selecione uma data (AAAA-MM-DD)",
+                  "format": "date",
+                  "title": "Data01",
+                  "type": "string",
+                  "x-ms-content-hint": "DATE",
+                  "x-ms-dynamically-added": true
+                },
+                "date_1": {
+                  "description": "Inserir ou selecione uma data (AAAA-MM-DD)",
+                  "format": "date",
+                  "title": "Data02",
+                  "type": "string",
+                  "x-ms-content-hint": "DATE",
+                  "x-ms-dynamically-added": true
+                }
+              },
+              "required": [
+                "date",
+                "date_1"
+              ]
+            }
+          }
+        }
+      },
+      "parameters": {
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        },
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        }
+      },
+      "outputs": {},
+      "metadata": {
+        "defaultToEmbeddedConnections": true
+      }
+    }
+  },
+  "schemaVersion": "1.0.0.0"
+}

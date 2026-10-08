@@ -1,0 +1,100 @@
+mcs.metadata:
+  componentName: Alterar ou Cancelar
+kind: AdaptiveDialog
+beginDialog:
+  kind: OnRecognizedIntent
+  id: main
+  intent:
+    displayName:
+    triggerQueries:
+      - alterar reserva
+      - cancelar reserva
+      - quero mudar minha reserva
+      - como cancelo minha reserva
+      - posso alterar a data da minha reserva
+      - preciso cancelar meu agendamento
+      - modificar agendamento
+      - remarcar compromisso
+      - desmarcar horário
+
+  actions:
+    - kind: Question
+      id: Question_nSuWOh
+      variable: Topic.varProtocolo
+      prompt: Por favor, informe o protocolo da reserva que deseja alterar, mudar ou cancelar.
+      entity: StringPrebuiltEntity
+
+    - kind: Question
+      id: Question_Zn4Jul
+      variable: Topic.varTipoAcao
+      prompt: Qual ação você deseja realizar? (Alterar, Mudar ou Cancelar)
+      entity:
+        kind: EmbeddedEntity
+        definition:
+          kind: ClosedListEntity
+          optionSetName: AcaoReservaOptions
+          items:
+            - id: alterar
+              displayName: Alterar
+
+            - id: cancelar
+              displayName: Cancelar
+
+    - kind: ConditionGroup
+      id: conditionGroup_Hxn8l7
+      conditions:
+        - id: conditionItem_Eg9fPY
+          condition: =Topic.varTipoAcao = AcaoReservaOptions.cancelar
+          displayName: Cancelar
+          actions:
+            - kind: Question
+              id: question_bD5hbg
+              interruptionPolicy:
+                allowInterruption: true
+
+              variable: init:Topic.varCancelar
+              prompt: Tem certeza de que deseja cancelar a intenção de reserva para o protocolo{Topic.varProtocolo}
+              entity:
+                kind: EmbeddedEntity
+                definition:
+                  kind: ClosedListEntity
+                  items:
+                    - id: Sim
+                      displayName: Sim
+
+                    - id: Não
+                      displayName: Não
+
+            - kind: ConditionGroup
+              id: conditionGroup_VHzrl3
+              conditions:
+                - id: conditionItem_chUntX
+                  condition: =Topic.varCancelar = 'cr113_ReservaFacilqST1I4.topic.AlterarouCancelar.main.question_bD5hbg'.Sim
+                  actions:
+                    - kind: SendActivity
+                      id: sendActivity_VWPpbZ
+                      activity: A solicitação de cancelamento referente ao protocolo {Topic.varProtocolo} foi registrada e enviada para análise da equipe.
+
+                - id: conditionItem_p010my
+                  condition: =Topic.varCancelar = 'cr113_ReservaFacilqST1I4.topic.AlterarouCancelar.main.question_bD5hbg'.Não
+                  actions:
+                    - kind: SendActivity
+                      id: sendActivity_9aAtFz
+                      activity: Solicitação de cancelamento mantida como pendente. Nenhuma alteração foi registrada.
+
+      elseActions:
+        - kind: Question
+          id: question_EzCaPD
+          interruptionPolicy:
+            allowInterruption: true
+
+          variable: init:Topic.varAlteracao
+          prompt: Quais dados você deseja alterar ?
+          entity: StringPrebuiltEntity
+
+        - kind: SendActivity
+          id: sendActivity_WN6kY2
+          activity: "Sua solicitação de alteração para o protocolo {Topic.varProtocolo} foi registrada com os detalhes: \"{Topic.varAlteracao}\". Em breve a equipe avaliará o pedido."
+
+inputType: {}
+outputType: {}

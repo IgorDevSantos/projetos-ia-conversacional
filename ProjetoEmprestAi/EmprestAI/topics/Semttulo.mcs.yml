@@ -1,0 +1,88 @@
+mcs.metadata:
+  componentName: Status do Empréstimo
+kind: AdaptiveDialog
+modelDescription: Este tópico é utilizado para consultar o status de uma solicitação de empréstimo de equipamentos. O agente deve solicitar o número do protocolo, consultar a solicitação registrada no sistema e informar ao usuário os dados encontrados e o status atual. Caso o protocolo não seja encontrado, o agente deve informar que não existe uma solicitação correspondente.
+beginDialog:
+  kind: OnRecognizedIntent
+  id: main
+  intent:
+    displayName: Status do empréstimo
+    triggerQueries:
+      - consultar empréstimo
+      - consultar status do empréstimo
+      - qual o status do meu empréstimo
+      - quero consultar meu empréstimo
+      - verificar empréstimo
+      - acompanhar minha solicitação
+      - status da solicitação
+
+  actions:
+    - kind: Question
+      id: question_Protocolo
+      interruptionPolicy:
+        allowInterruption: true
+
+      variable: init:Topic.varProtocolo
+      prompt: Informe o número do protocolo da solicitação que deseja consultar.
+      entity:
+        kind: StringPrebuiltEntity
+        sensitivityLevel: None
+
+    - kind: InvokeFlowAction
+      id: invokeFlowAction_Ch41Ey
+      input:
+        binding:
+          text: =Topic.varProtocolo
+
+      output:
+        binding:
+          protocolo: Topic.Protocolo
+
+      flowId: 5acc9b18-6eb1-f111-aaab-002248e04b25
+
+    - kind: SendActivity
+      id: sendActivity_1gKNJK
+      activity: "{Topic.Protocolo}"
+
+    - kind: Question
+      id: question_d2Ox9m
+      interruptionPolicy:
+        allowInterruption: true
+
+      variable: init:Topic.Var1
+      prompt: Deseja consultar outro protocolo?
+      entity:
+        kind: EmbeddedEntity
+        definition:
+          kind: ClosedListEntity
+          items:
+            - id: Sim
+              displayName: Sim
+
+            - id: Não
+              displayName: Não
+
+    - kind: ConditionGroup
+      id: conditionGroup_ixiUso
+      conditions:
+        - id: conditionItem_1Nho4R
+          condition: =Topic.Var1 = 'cr113_AssistentedeEmprstimodeEquipamentos.topic.Semttulo.main.question_d2Ox9m'.Sim
+          actions:
+            - kind: GotoAction
+              id: HMfaZi
+              actionId: question_Protocolo
+
+        - id: conditionItem_vSTJQY
+          condition: =Topic.Var1 = 'cr113_AssistentedeEmprstimodeEquipamentos.topic.Semttulo.main.question_d2Ox9m'.Não
+          actions:
+            - kind: BeginDialog
+              id: OTmPJj
+              dialog: cr113_AssistentedeEmprstimodeEquipamentos.topic.EndofConversation
+
+      elseActions:
+        - kind: SendActivity
+          id: sendActivity_WhtYVY
+          activity: Não entendi a sua resposta. Por favor, escreva o que deseja fazer.
+
+inputType: {}
+outputType: {}

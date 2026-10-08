@@ -1,0 +1,42 @@
+mcs.metadata:
+  componentName: Início da conversa
+  description: Esse tópico do sistema é disparado quando o agente recebe uma Atividade que indica o início de uma nova conversa. Se você não quiser que o agente inicie a conversa, desabilite esse tópico.
+kind: AdaptiveDialog
+beginDialog:
+  kind: OnConversationStart
+  id: main
+  actions:
+    - kind: Question
+      id: question_lBVUsz
+      interruptionPolicy:
+        allowInterruption: true
+
+      variable: init:Topic.EscolhaSaudação
+      prompt: Olá, eu sou o  {System.Bot.Name}. Como posso te ajudar?
+      entity:
+        kind: EmbeddedEntity
+        definition:
+          kind: ClosedListEntity
+          items:
+            - id: Realizar empréstimo
+              displayName: Realizar empréstimo
+
+            - id: Consultar empréstimo
+              displayName: Consultar empréstimo
+
+    - kind: ConditionGroup
+      id: conditionGroup_BWIzUV
+      conditions:
+        - id: conditionItem_TsuTF2
+          condition: =Topic.EscolhaSaudação = 'cr113_AssistentedeEmprstimodeEquipamentos.topic.ConversationStart.main.question_lBVUsz'.'Realizar empréstimo'
+          actions:
+            - kind: BeginDialog
+              id: fAOaPI
+              dialog: cr113_AssistentedeEmprstimodeEquipamentos.topic.Solicitaremprstimo_kSV
+
+        - id: conditionItem_xc5omj
+          condition: =Topic.EscolhaSaudação = 'cr113_AssistentedeEmprstimodeEquipamentos.topic.ConversationStart.main.question_lBVUsz'.'Consultar empréstimo'
+          actions:
+            - kind: BeginDialog
+              id: H7ECSv
+              dialog: cr113_AssistentedeEmprstimodeEquipamentos.topic.Semttulo

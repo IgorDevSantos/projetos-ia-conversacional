@@ -1,0 +1,283 @@
+﻿{
+  "properties": {
+    "connectionReferences": {
+      "shared_sharepointonline": {
+        "api": {
+          "name": "shared_sharepointonline"
+        },
+        "connection": {
+          "connectionReferenceLogicalName": "new_sharedsharepointonline_becbf"
+        },
+        "runtimeSource": "embedded"
+      },
+      "shared_teams": {
+        "api": {
+          "name": "shared_teams"
+        },
+        "connection": {
+          "connectionReferenceLogicalName": "new_sharedteams_b136f"
+        },
+        "runtimeSource": "embedded"
+      },
+      "shared_office365": {
+        "api": {
+          "name": "shared_office365"
+        },
+        "connection": {
+          "connectionReferenceLogicalName": "new_sharedoffice365_71fcb"
+        },
+        "runtimeSource": "embedded"
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "actions": {
+        "protocolo": {
+          "type": "Compose",
+          "inputs": "@concat(\u0027EMPRESTA-\u0027, formatDateTime(convertFromUtc(utcNow(),\u0027E. South America Standard Time\u0027),\u0027ddMMyyyy-HHmmss\u0027))",
+          "runAfter": {}
+        },
+        "Responder_ao_agente": {
+          "type": "Response",
+          "kind": "Skills",
+          "inputs": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "protocolo": {
+                  "title": "Protocolo",
+                  "description": "",
+                  "type": "string",
+                  "x-ms-content-hint": "TEXT",
+                  "x-ms-dynamically-added": true
+                },
+                "status": {
+                  "title": "Status",
+                  "description": "",
+                  "type": "string",
+                  "x-ms-content-hint": "TEXT",
+                  "x-ms-dynamically-added": true
+                }
+              },
+              "additionalProperties": {}
+            },
+            "statusCode": 200,
+            "body": {
+              "protocolo": "@{outputs(\u0027protocolo\u0027)}",
+              "status": "Pendente"
+            }
+          },
+          "runAfter": {
+            "Condi\u00E7\u00E3o": [
+              "SUCCEEDED"
+            ]
+          }
+        },
+        "Criar_item": {
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "dataset": "https://escolatrabalhador4-my.sharepoint.com/personal/nathaliadebellis_escoladotrabalhador40_com_br",
+              "table": "79bc3b2f-8317-46aa-aa9a-fa49369d4479",
+              "item/Title": "@outputs(\u0027protocolo\u0027)",
+              "item/Solicitacao": "@triggerBody()?[\u0027text_1\u0027]",
+              "item/Equipamento/Value": "@triggerBody()?[\u0027text_2\u0027]",
+              "item/Quantidade": "@triggerBody()?[\u0027number\u0027]",
+              "item/DataRetirada": "@triggerBody()?[\u0027date\u0027]",
+              "item/DataDevolucao": "@triggerBody()?[\u0027date_1\u0027]",
+              "item/Finalidade": "@triggerBody()?[\u0027text\u0027]",
+              "item/Status/Value": "Pendente",
+              "item/N_x00fa_meroCelular": "@triggerBody()?[\u0027text_4\u0027]",
+              "item/E_x002d_mail": "@triggerBody()?[\u0027text_3\u0027]"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "operationId": "PostItem",
+              "connectionName": "shared_sharepointonline"
+            }
+          },
+          "runAfter": {
+            "protocolo": [
+              "SUCCEEDED"
+            ]
+          }
+        },
+        "Condi\u00E7\u00E3o": {
+          "type": "If",
+          "expression": {
+            "and": [
+              {
+                "greater": [
+                  "@outputs(\u0027Criar_item\u0027)?[\u0027body/Quantidade\u0027]",
+                  2
+                ]
+              }
+            ]
+          },
+          "actions": {
+            "Postar_mensagem_em_um_chat_ou_canal": {
+              "type": "OpenApiConnection",
+              "inputs": {
+                "parameters": {
+                  "poster": "User",
+                  "location": "Channel",
+                  "body/recipient/groupId": "e9d61539-eff9-40f4-9407-3ed293f35c85",
+                  "body/recipient/channelId": "19:WmBzqRsRwLlrcC41pn-9DWhAxWoDrAg8j1CKAPbufdY1@thread.tacv2",
+                  "body/messageBody": "\u003Cp class=\u0022editor-paragraph\u0022\u003E\u26A0\uFE0F \u003Cb\u003E\u003Cstrong class=\u0022editor-text-bold\u0022\u003ENova solicita\u00E7\u00E3o de empr\u00E9stimo!\u003C/strong\u003E\u003C/b\u003E\u003C/p\u003E\u003Cbr\u003E\u003Cp class=\u0022editor-paragraph\u0022\u003EEssa solicita\u00E7\u00E3o requer valida\u00E7\u00E3o adicional (quantidade acima de 2 itens).\u003C/p\u003E\u003Cp class=\u0022editor-paragraph\u0022\u003E\u003Cbr\u003E\u003Cb\u003E\u003Cstrong class=\u0022editor-text-bold\u0022\u003EProtocolo:\u003C/strong\u003E\u003C/b\u003E @{outputs(\u0027protocolo\u0027)}\u003C/p\u003E\u003Cp class=\u0022editor-paragraph\u0022\u003E\u003Cb\u003E\u003Cstrong class=\u0022editor-text-bold\u0022\u003ESolicitante:\u003C/strong\u003E\u003C/b\u003E @{outputs(\u0027Criar_item\u0027)?[\u0027body/Solicitacao\u0027]}\u003C/p\u003E\u003Cp class=\u0022editor-paragraph\u0022\u003E\u003Cb\u003E\u003Cstrong class=\u0022editor-text-bold\u0022\u003EE-mail: \u003C/strong\u003E\u003C/b\u003E@{outputs(\u0027Criar_item\u0027)?[\u0027body/E_x002d_mail\u0027]}\u003C/p\u003E\u003Cp class=\u0022editor-paragraph\u0022\u003E\u003Cb\u003E\u003Cstrong class=\u0022editor-text-bold\u0022\u003EN\u00FAmero do celular: \u003C/strong\u003E\u003C/b\u003E@{outputs(\u0027Criar_item\u0027)?[\u0027body/N_x00fa_meroCelular\u0027]}\u003C/p\u003E\u003Cp class=\u0022editor-paragraph\u0022\u003E\u003Cb\u003E\u003Cstrong class=\u0022editor-text-bold\u0022\u003EEquipamento:\u003C/strong\u003E\u003C/b\u003E @{outputs(\u0027Criar_item\u0027)?[\u0027body/Equipamento/Value\u0027]}\u003C/p\u003E\u003Cp class=\u0022editor-paragraph\u0022\u003E\u003Cb\u003E\u003Cstrong class=\u0022editor-text-bold\u0022\u003EQuantidade:\u003C/strong\u003E\u003C/b\u003E @{outputs(\u0027Criar_item\u0027)?[\u0027body/Quantidade\u0027]}\u003C/p\u003E\u003Cp class=\u0022editor-paragraph\u0022\u003E\u003Cb\u003E\u003Cstrong class=\u0022editor-text-bold\u0022\u003EFinalidade: \u003C/strong\u003E\u003C/b\u003E@{outputs(\u0027Criar_item\u0027)?[\u0027body/Finalidade\u0027]}\u003C/p\u003E\u003Cp class=\u0022editor-paragraph\u0022\u003E\u003Cb\u003E\u003Cstrong class=\u0022editor-text-bold\u0022\u003EData Retirada: \u003C/strong\u003E\u003C/b\u003E@{outputs(\u0027Criar_item\u0027)?[\u0027body/DataRetirada\u0027]}\u003C/p\u003E\u003Cp class=\u0022editor-paragraph\u0022\u003E\u003Cb\u003E\u003Cstrong class=\u0022editor-text-bold\u0022\u003EData Devolu\u00E7\u00E3o: \u003C/strong\u003E\u003C/b\u003E@{outputs(\u0027Criar_item\u0027)?[\u0027body/DataDevolucao\u0027]}\u003C/p\u003E\u003Cp class=\u0022editor-paragraph\u0022\u003E\u003Cb\u003E\u003Cstrong class=\u0022editor-text-bold\u0022\u003EStatus:\u003C/strong\u003E\u003C/b\u003E Pendente\u003Cbr\u003E\u003C/p\u003E\u003Cbr\u003E\u003Cp class=\u0022editor-paragraph\u0022\u003E\u003Ci\u003E\u003Cem class=\u0022editor-text-italic\u0022\u003EMensagem enviada automaticamente pelo agente EmprestAI.\u003C/em\u003E\u003C/i\u003E\u003C/p\u003E"
+                },
+                "host": {
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_teams",
+                  "operationId": "PostMessageToConversation",
+                  "connectionName": "shared_teams"
+                }
+              }
+            }
+          },
+          "else": {
+            "actions": {
+              "Postar_mensagem_em_um_chat_ou_canal_1": {
+                "type": "OpenApiConnection",
+                "inputs": {
+                  "parameters": {
+                    "poster": "User",
+                    "location": "Channel",
+                    "body/recipient/groupId": "e9d61539-eff9-40f4-9407-3ed293f35c85",
+                    "body/recipient/channelId": "19:WmBzqRsRwLlrcC41pn-9DWhAxWoDrAg8j1CKAPbufdY1@thread.tacv2",
+                    "body/messageBody": "\u003Cp class=\u0022editor-paragraph\u0022\u003E\u2705 \u003Cb\u003E\u003Cstrong class=\u0022editor-text-bold\u0022\u003ENova solicita\u00E7\u00E3o de empr\u00E9stimo registrada!\u003C/strong\u003E\u003C/b\u003E\u003Cbr\u003E\u003Cbr\u003E\u003Cb\u003E\u003Cstrong class=\u0022editor-text-bold\u0022\u003EProtocolo:\u003C/strong\u003E\u003C/b\u003E @{outputs(\u0027protocolo\u0027)}\u003Cbr\u003E\u003Cb\u003E\u003Cstrong class=\u0022editor-text-bold\u0022\u003ESolicitante:\u003C/strong\u003E\u003C/b\u003E @{outputs(\u0027Criar_item\u0027)?[\u0027body/Solicitacao\u0027]}\u003C/p\u003E\u003Cp class=\u0022editor-paragraph\u0022\u003E\u003Cb\u003E\u003Cstrong class=\u0022editor-text-bold\u0022\u003EE-mail:\u003C/strong\u003E\u003C/b\u003E @{outputs(\u0027Criar_item\u0027)?[\u0027body/E_x002d_mail\u0027]}\u003C/p\u003E\u003Cp class=\u0022editor-paragraph\u0022\u003EN\u00FAmero do celular: @{outputs(\u0027Criar_item\u0027)?[\u0027body/N_x00fa_meroCelular\u0027]}\u003Cbr\u003E\u003Cb\u003E\u003Cstrong class=\u0022editor-text-bold\u0022\u003EEquipamento:\u003C/strong\u003E\u003C/b\u003E @{outputs(\u0027Criar_item\u0027)?[\u0027body/Equipamento/Value\u0027]}\u003Cbr\u003E\u003Cb\u003E\u003Cstrong class=\u0022editor-text-bold\u0022\u003EQuantidade:\u003C/strong\u003E\u003C/b\u003E @{outputs(\u0027Criar_item\u0027)?[\u0027body/Quantidade\u0027]}\u003Cbr\u003E\u003Cb\u003E\u003Cstrong class=\u0022editor-text-bold\u0022\u003EFinalidade:\u003C/strong\u003E\u003C/b\u003E @{outputs(\u0027Criar_item\u0027)?[\u0027body/Finalidade\u0027]}\u003Cbr\u003E\u003Cb\u003E\u003Cstrong class=\u0022editor-text-bold\u0022\u003EData Retirada:\u003C/strong\u003E\u003C/b\u003E @{outputs(\u0027Criar_item\u0027)?[\u0027body/DataRetirada\u0027]}\u003Cbr\u003E\u003Cb\u003E\u003Cstrong class=\u0022editor-text-bold\u0022\u003EData Devolu\u00E7\u00E3o:\u003C/strong\u003E\u003C/b\u003E @{outputs(\u0027Criar_item\u0027)?[\u0027body/DataDevolucao\u0027]}\u003Cbr\u003E\u003Cb\u003E\u003Cstrong class=\u0022editor-text-bold\u0022\u003EStatus:\u003C/strong\u003E\u003C/b\u003E Pendente\u003Cbr\u003E\u003C/p\u003E\u003Cbr\u003E\u003Cp class=\u0022editor-paragraph\u0022\u003E\u003Ci\u003E\u003Cem class=\u0022editor-text-italic\u0022\u003EMensagem enviada automaticamente pelo agente EmprestAI.\u003C/em\u003E\u003C/i\u003E\u003C/p\u003E"
+                  },
+                  "host": {
+                    "apiId": "/providers/Microsoft.PowerApps/apis/shared_teams",
+                    "operationId": "PostMessageToConversation",
+                    "connectionName": "shared_teams"
+                  }
+                }
+              }
+            }
+          },
+          "runAfter": {
+            "Enviar_um_email_(V2)": [
+              "SUCCEEDED"
+            ]
+          }
+        },
+        "Enviar_um_email_(V2)": {
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "emailMessage/To": "@outputs(\u0027Criar_item\u0027)?[\u0027body/E_x002d_mail\u0027]",
+              "emailMessage/Subject": "Confirma\u00E7\u00E3o de solicita\u00E7\u00E3o de empr\u00E9stimo - Protocolo @{outputs(\u0027protocolo\u0027)}",
+              "emailMessage/Body": "\u003Cp class=\u0022editor-paragraph\u0022\u003ESegue informa\u00E7\u00F5es sobre o seu empr\u00E9stimo de equipamento:\u003C/p\u003E\u003Cbr\u003E\u003Cp class=\u0022editor-paragraph\u0022\u003EProtocolo: @{outputs(\u0027protocolo\u0027)}\u003Cbr\u003ESolicitante: @{outputs(\u0027Criar_item\u0027)?[\u0027body/Solicitacao\u0027]}\u003Cbr\u003EE-mail: @{outputs(\u0027Criar_item\u0027)?[\u0027body/E_x002d_mail\u0027]}\u003Cbr\u003EN\u00FAmero do celular: @{outputs(\u0027Criar_item\u0027)?[\u0027body/N_x00fa_meroCelular\u0027]}\u003Cbr\u003EEquipamento: @{outputs(\u0027Criar_item\u0027)?[\u0027body/Equipamento/Value\u0027]}\u003Cbr\u003EQuantidade: @{outputs(\u0027Criar_item\u0027)?[\u0027body/Quantidade\u0027]}\u003Cbr\u003EFinalidade: @{outputs(\u0027Criar_item\u0027)?[\u0027body/Finalidade\u0027]}\u003Cbr\u003EData Retirada: @{outputs(\u0027Criar_item\u0027)?[\u0027body/DataRetirada\u0027]}\u003Cbr\u003EData Devolu\u00E7\u00E3o: @{outputs(\u0027Criar_item\u0027)?[\u0027body/DataDevolucao\u0027]}\u003Cbr\u003EStatus: Pendente\u003Cbr\u003E\u003Cbr\u003E\u003Cbr\u003EMensagem enviada automaticamente pelo agente EmprestAI.\u003C/p\u003E",
+              "emailMessage/Importance": "Normal"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365",
+              "operationId": "SendEmailV2",
+              "connectionName": "shared_office365"
+            }
+          },
+          "runAfter": {
+            "Criar_item": [
+              "SUCCEEDED"
+            ]
+          }
+        }
+      },
+      "triggers": {
+        "manual": {
+          "type": "Request",
+          "kind": "Skills",
+          "inputs": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "text_1": {
+                  "description": "Insira sua entrada",
+                  "title": "Solicitante",
+                  "type": "string",
+                  "x-ms-content-hint": "TEXT",
+                  "x-ms-dynamically-added": true
+                },
+                "text_2": {
+                  "description": "Insira sua entrada",
+                  "title": "Equipamento",
+                  "type": "string",
+                  "x-ms-content-hint": "TEXT",
+                  "x-ms-dynamically-added": true
+                },
+                "date": {
+                  "description": "Inserir ou selecione uma data ",
+                  "format": "date",
+                  "title": "DataRetirada",
+                  "type": "string",
+                  "x-ms-content-hint": "DATE",
+                  "x-ms-dynamically-added": true
+                },
+                "date_1": {
+                  "description": "Inserir ou selecione uma data",
+                  "format": "date",
+                  "title": "DataDevolucao",
+                  "type": "string",
+                  "x-ms-content-hint": "DATE",
+                  "x-ms-dynamically-added": true
+                },
+                "number": {
+                  "description": "Insira um n\u00FAmero",
+                  "title": "Quantidade",
+                  "type": "number",
+                  "x-ms-content-hint": "NUMBER",
+                  "x-ms-dynamically-added": true
+                },
+                "text": {
+                  "description": "Insira sua entrada",
+                  "title": "Finalidade",
+                  "type": "string",
+                  "x-ms-content-hint": "TEXT",
+                  "x-ms-dynamically-added": true
+                },
+                "text_3": {
+                  "description": "Insira sua entrada",
+                  "title": "Email",
+                  "type": "string",
+                  "x-ms-content-hint": "TEXT",
+                  "x-ms-dynamically-added": true
+                },
+                "text_4": {
+                  "description": "Insira sua entrada",
+                  "title": "NumeroCelular",
+                  "type": "string",
+                  "x-ms-content-hint": "TEXT",
+                  "x-ms-dynamically-added": true
+                }
+              },
+              "required": [
+                "text_1",
+                "text_2",
+                "date",
+                "date_1",
+                "number",
+                "text",
+                "text_3",
+                "text_4"
+              ]
+            }
+          }
+        }
+      },
+      "parameters": {
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        },
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        }
+      },
+      "metadata": {
+        "defaultToEmbeddedConnections": true
+      }
+    }
+  },
+  "schemaVersion": "1.0.0.0"
+}

@@ -1,0 +1,22 @@
+mcs.metadata:
+  componentName: testedata
+kind: AdaptiveDialog
+beginDialog:
+  kind: OnRecognizedIntent
+  id: main
+  intent: {}
+  actions:
+    - kind: Question
+      id: question_Hz0feN
+      interruptionPolicy:
+        allowInterruption: true
+
+      variable: init:Topic.Var1
+      prompt:
+      entity:
+        kind: EmbeddedEntity
+        definition:
+          kind: ClosedListEntity
+
+inputType: {}
+outputType: {}

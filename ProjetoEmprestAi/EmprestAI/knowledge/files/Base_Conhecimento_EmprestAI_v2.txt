@@ -1,0 +1,98 @@
+Base de Conhecimento - TechLoc Equipamentos Corporativos
+
+(Todos os dados abaixo sao ficticios, criados exclusivamente para fins de demonstracao do agente EmprestAI.)
+
+Sobre a TechLoc
+
+A TechLoc Equipamentos Corporativos e uma empresa especializada no emprestimo de equipamentos tecnologicos (notebooks, projetores, webcams e outros itens) para clientes externos, como empresas parceiras e profissionais que precisam de recursos temporarios para atividades profissionais, treinamentos, reunioes, apresentacoes e eventos. As solicitacoes sao feitas pelo agente EmprestAI e passam por analise da equipe responsavel antes da liberacao.
+
+Canais de contato
+
+Site: www.techloc.com.br
+WhatsApp: (19) 99999-1234
+E-mail: contato@techloc.com.br
+Telefone fixo: (19) 3322-4455
+Horario de atendimento: segunda a sexta, das 8h as 18h
+
+Equipamentos disponiveis e valores de referencia
+
+Os valores abaixo sao valores ficticios de referencia interna, cobrados apenas em caso de dano, extravio ou atraso na devolucao do equipamento.
+
+Notebook: valor de referencia de R$ 180,00 por dia.
+Projetor: valor de referencia de R$ 90,00 por dia.
+Webcam: valor de referencia de R$ 35,00 por dia.
+Headset: valor de referencia de R$ 25,00 por dia.
+Monitor: valor de referencia de R$ 60,00 por dia.
+Teclado: valor de referencia de R$ 15,00 por dia.
+Mouse: valor de referencia de R$ 10,00 por dia.
+Outros equipamentos: valor sujeito a disponibilidade e avaliacao da equipe responsavel.
+
+Como solicitar um equipamento
+
+Para registrar uma solicitacao, o cliente devera informar:
+- Nome do solicitante
+- E-mail para contato
+- Numero de celular para contato
+- Equipamento desejado
+- Quantidade
+- Data de retirada
+- Data de devolucao
+- Finalidade do emprestimo
+
+Apos o registro, sera gerado um protocolo para acompanhamento da solicitacao, e uma confirmacao e enviada para o e-mail informado.
+
+Consulta de solicitacoes
+
+O cliente podera consultar uma solicitacao informando o protocolo recebido durante o cadastro.
+
+Status possiveis
+
+Pendente: aguarda analise.
+Em analise: solicitacao em avaliacao.
+Aprovada: emprestimo autorizado.
+Rejeitada: solicitacao nao aprovada.
+Finalizada: processo encerrado.
+
+Regras de negocio
+
+- A data de devolucao nao pode ser anterior a data de retirada.
+- Solicitacoes acima de 2 unidades exigem validacao adicional da equipe, via alerta no Microsoft Teams.
+- Cada solicitacao recebe um protocolo unico.
+- Os valores de referencia nao sao cobrados no ato da retirada, servem apenas como base em casos de dano, extravio ou atraso.
+
+Perguntas Frequentes
+
+Posso solicitar mais de um equipamento?
+Sim, informando a quantidade desejada.
+
+Posso alterar uma solicitacao ja registrada?
+Nao. O agente apenas registra e consulta solicitacoes.
+
+O agente aprova emprestimos?
+Nao. O agente apenas registra e consulta solicitacoes; a aprovacao e feita pela equipe responsavel.
+
+Como consultar uma solicitacao?
+Informe o protocolo gerado no momento do cadastro.
+
+Os valores listados sao cobrados sempre?
+Nao. Sao apenas valores de referencia para casos de dano, extravio ou atraso na devolucao.
+
+Preciso ser funcionario da TechLoc para solicitar um equipamento?
+Nao. A TechLoc atende clientes externos, como empresas parceiras e profissionais que precisam de equipamentos temporariamente.
+
+Por que o agente pede meu e-mail e celular?
+Para que a equipe da TechLoc possa enviar a confirmacao da solicitacao e entrar em contato, se necessario, sobre a retirada ou devolucao do equipamento.
+
+Como falar com a equipe da TechLoc diretamente?
+Pelo WhatsApp, e-mail, telefone fixo ou site listados no inicio deste documento.
+
+Limitacoes do agente
+
+O agente EmprestAI nao realiza:
+- Aprovacao de solicitacoes
+- Cancelamento de solicitacoes
+- Alteracao de registros
+- Controle de estoque
+- Cobranca de valores
+
+Sua funcao e registrar solicitacoes e consultar informacoes armazenadas no sistema.
